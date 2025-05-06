@@ -1,9 +1,7 @@
 package de.hitec.nhplus.utils;
 
-import de.hitec.nhplus.datastorage.ConnectionBuilder;
-import de.hitec.nhplus.datastorage.DaoFactory;
-import de.hitec.nhplus.datastorage.PatientDao;
-import de.hitec.nhplus.datastorage.TreatmentDao;
+import de.hitec.nhplus.datastorage.*;
+import de.hitec.nhplus.model.Nurse;
 import de.hitec.nhplus.model.Patient;
 import de.hitec.nhplus.model.Treatment;
 
@@ -30,8 +28,10 @@ public class SetUpDB {
         Connection connection = ConnectionBuilder.getConnection();
         SetUpDB.wipeDb(connection);
         SetUpDB.setUpTablePatient(connection);
+        SetUpDB.setUpTableNurse(connection);
         SetUpDB.setUpTableTreatment(connection);
         SetUpDB.setUpPatients();
+        SetUpDB.setUpNurses();
         SetUpDB.setUpTreatments();
     }
 
@@ -41,6 +41,7 @@ public class SetUpDB {
     public static void wipeDb(Connection connection) {
         try (Statement statement = connection.createStatement()) {
             statement.execute("DROP TABLE patient");
+            statement.execute("DROP TABLE nurse");
             statement.execute("DROP TABLE treatment");
         } catch (SQLException exception) {
             System.out.println(exception.getMessage());
@@ -56,6 +57,20 @@ public class SetUpDB {
                 "   carelevel TEXT NOT NULL, " +
                 "   roomnumber TEXT NOT NULL, " +
                 "   assets TEXt NOT NULL" +
+                ");";
+        try (Statement statement = connection.createStatement()) {
+            statement.execute(SQL);
+        } catch (SQLException exception) {
+            System.out.println(exception.getMessage());
+        }
+    }
+
+    private static void setUpTableNurse(Connection connection) {
+        final String SQL = "CREATE TABLE IF NOT EXISTS nurse (" +
+                "   id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                "   firstname TEXT NOT NULL, " +
+                "   surname TEXT NOT NULL, " +
+                "   phoneNumber TEXT NOT NULL" +
                 ");";
         try (Statement statement = connection.createStatement()) {
             statement.execute(SQL);
@@ -93,6 +108,17 @@ public class SetUpDB {
             dao.create(new Patient("Ahmet", "Yilmaz", convertStringToLocalDate("1941-02-22"), "3", "013", "normal"));
             dao.create(new Patient("Hans", "Neumann", convertStringToLocalDate("1955-12-12"), "2", "001", "sehr vermögend"));
             dao.create(new Patient("Elisabeth", "Müller", convertStringToLocalDate("1958-03-07"), "5", "110", "arm"));
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+        }
+    }
+
+    private static void setUpNurses() {
+        try {
+            NurseDao dao = DaoFactory.getDaoFactory().createNurseDao();
+            dao.create(new Nurse("Alice",  "Hansen", "017802365843"));
+            dao.create(new Nurse("Bob", "Baumeister", "016590754674"));
+            dao.create(new Nurse("Egon", "Kowalski", "015901857037"));
         } catch (SQLException exception) {
             exception.printStackTrace();
         }
