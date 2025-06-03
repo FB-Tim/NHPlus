@@ -1,5 +1,6 @@
 package de.hitec.nhplus.utils;
 
+import at.favre.lib.crypto.bcrypt.BCrypt;
 import de.hitec.nhplus.datastorage.*;
 import de.hitec.nhplus.model.Admin;
 import de.hitec.nhplus.model.Nurse;
@@ -46,6 +47,7 @@ public class SetUpDB {
             statement.execute("DROP TABLE patient");
             statement.execute("DROP TABLE nurse");
             statement.execute("DROP TABLE treatment");
+            statement.execute("DROP TABLE admin");
         } catch (SQLException exception) {
             System.out.println(exception.getMessage());
         }
@@ -143,8 +145,10 @@ public class SetUpDB {
     private static void setUpAdmins() {
         try {
             AdminDao dao = DaoFactory.getDaoFactory().createAdminDao();
-            dao.create(new Admin("Admin",  "Admin", "Admin123"));
-        } catch (SQLException exception) {
+
+            String plainPassword = "Admin123";
+            String bcryptHashString = BCrypt.withDefaults().hashToString(12, plainPassword.toCharArray());
+            dao.create(new Admin("Admin", "Admin", bcryptHashString));        } catch (SQLException exception) {
             exception.printStackTrace();
         }
     }
