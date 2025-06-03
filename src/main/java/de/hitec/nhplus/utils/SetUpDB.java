@@ -1,6 +1,7 @@
 package de.hitec.nhplus.utils;
 
 import de.hitec.nhplus.datastorage.*;
+import de.hitec.nhplus.model.Admin;
 import de.hitec.nhplus.model.Nurse;
 import de.hitec.nhplus.model.Patient;
 import de.hitec.nhplus.model.Treatment;
@@ -30,8 +31,10 @@ public class SetUpDB {
         SetUpDB.setUpTablePatient(connection);
         SetUpDB.setUpTableNurse(connection);
         SetUpDB.setUpTableTreatment(connection);
+        SetUpDB.setUpTableAdmin(connection);
         SetUpDB.setUpPatients();
         SetUpDB.setUpNurses();
+        SetUpDB.setUpAdmins();
         SetUpDB.setUpTreatments();
     }
 
@@ -70,6 +73,20 @@ public class SetUpDB {
                 "   firstname TEXT NOT NULL, " +
                 "   surname TEXT NOT NULL, " +
                 "   phoneNumber TEXT NOT NULL" +
+                ");";
+        try (Statement statement = connection.createStatement()) {
+            statement.execute(SQL);
+        } catch (SQLException exception) {
+            System.out.println(exception.getMessage());
+        }
+    }
+
+    private static void setUpTableAdmin(Connection connection) {
+        final String SQL = "CREATE TABLE IF NOT EXISTS admin (" +
+                "   id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                "   firstname TEXT NOT NULL, " +
+                "   surname TEXT NOT NULL, " +
+                "   password TEXT NOT NULL" +
                 ");";
         try (Statement statement = connection.createStatement()) {
             statement.execute(SQL);
@@ -118,6 +135,15 @@ public class SetUpDB {
             dao.create(new Nurse("Alice",  "Hansen", "017802365843"));
             dao.create(new Nurse("Bob", "Baumeister", "016590754674"));
             dao.create(new Nurse("Egon", "Kowalski", "015901857037"));
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+        }
+    }
+
+    private static void setUpAdmins() {
+        try {
+            AdminDao dao = DaoFactory.getDaoFactory().createAdminDao();
+            dao.create(new Admin("Admin",  "Admin", "Admin123"));
         } catch (SQLException exception) {
             exception.printStackTrace();
         }
