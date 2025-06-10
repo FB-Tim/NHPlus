@@ -169,4 +169,17 @@ public class PatientDao extends DaoImp<Patient> {
         }
         return preparedStatement;
     }
+
+    @Override
+    protected PreparedStatement getExportStatement(long pid) {
+        PreparedStatement preparedStatement = null;
+        try {
+            final String SQL = "SELECT * FROM patient WHERE pid = ?";
+            preparedStatement = this.connection.prepareStatement(SQL);
+            preparedStatement.setLong(1, pid);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return preparedStatement;
+    }
 }

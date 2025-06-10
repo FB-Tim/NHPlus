@@ -12,13 +12,18 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import de.hitec.nhplus.model.Patient;
 import de.hitec.nhplus.model.Treatment;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
+
+import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+
 
 public class AllTreatmentController {
 
@@ -49,6 +54,9 @@ public class AllTreatmentController {
     @FXML
     private Button buttonDelete;
 
+    @FXML
+    private Button buttonExport;
+
     private final ObservableList<Treatment> treatments = FXCollections.observableArrayList();
     private TreatmentDao dao;
     private final ObservableList<String> patientSelection = FXCollections.observableArrayList();
@@ -72,6 +80,11 @@ public class AllTreatmentController {
         this.tableView.getSelectionModel().selectedItemProperty().addListener(
                 (observableValue, oldTreatment, newTreatment) ->
                         AllTreatmentController.this.buttonDelete.setDisable(newTreatment == null));
+
+        this.buttonExport.setDisable(true);
+        this.tableView.getSelectionModel().selectedItemProperty().addListener(
+                (observableValue, oldTreatment, newTreatment) ->
+                        AllTreatmentController.this.buttonExport.setDisable(newTreatment == null));
 
         this.createComboBoxData();
     }
@@ -160,6 +173,31 @@ public class AllTreatmentController {
             alert.showAndWait();
         }
     }
+    @FXML
+    public void handelExport() {
+        Treatment selectedTreatment = tableView.getSelectionModel().getSelectedItem();
+        if (selectedTreatment == null) {
+            System.out.println("Bitte wählen Sie eine Behandlung aus.");
+            return;
+        }
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Behandlung als JSON exportieren");
+        fileChooser.setInitialFileName("behandlung_" + selectedTreatment.getTid() + ".json");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("JSON-Dateien", "*.json"));
+        File file = fileChooser.showSaveDialog(buttonExport.getScene().getWindow());
+
+        if (file != null) {
+            ObjectMapper mapper = new ObjectMapper();
+            try {
+                mapper.writerWithDefaultPrettyPrinter().writeValue(file, selectedTreatment);
+                System.out.println("Export erfolgreich: " + file.getAbsolutePath());
+            } catch (IOException e) {
+                System.err.println("Fehler beim Exportieren: " + e.getMessage());
+            }
+        }
+    }
+
 
     @FXML
     public void handleMouseClick() {
