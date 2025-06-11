@@ -29,10 +29,13 @@ public class SetUpDB {
         SetUpDB.wipeDb(connection);
         SetUpDB.setUpTablePatient(connection);
         SetUpDB.setUpTableNurse(connection);
+        SetUpDB.setUpTableArchive(connection);
         SetUpDB.setUpTableTreatment(connection);
         SetUpDB.setUpPatients();
         SetUpDB.setUpNurses();
+        SetUpDB.setUpArchive();
         SetUpDB.setUpTreatments();
+
     }
 
     /**
@@ -43,6 +46,7 @@ public class SetUpDB {
             statement.execute("DROP TABLE patient");
             statement.execute("DROP TABLE nurse");
             statement.execute("DROP TABLE treatment");
+            statement.execute("DROP TABLE archive");
         } catch (SQLException exception) {
             System.out.println(exception.getMessage());
         }
@@ -87,13 +91,54 @@ public class SetUpDB {
                 "   end TEXT NOT NULL, " +
                 "   description TEXT NOT NULL, " +
                 "   remark TEXT NOT NULL," +
+                "   status TEXT NOT NULL, " +
                 "   FOREIGN KEY (pid) REFERENCES patient (pid) ON DELETE CASCADE " +
                 ");";
-
         try (Statement statement = connection.createStatement()) {
             statement.execute(SQL);
         } catch (SQLException exception) {
             System.out.println(exception.getMessage());
+        }
+    }
+
+    private static void setUpTableArchive(Connection connection) {
+        final String SQL = """
+        CREATE TABLE IF NOT EXISTS archive (
+            tid INTEGER PRIMARY KEY AUTOINCREMENT,
+            pid INTEGER NOT NULL,
+            treatment_date TEXT NOT NULL,
+            begin TEXT NOT NULL,
+            end TEXT NOT NULL,
+            description TEXT NOT NULL,
+            remark TEXT NOT NULL,
+            status TEXT NOT NULL,
+            delete_date TEXT,
+            comment TEXT NOT NULL,
+            FOREIGN KEY (pid) REFERENCES patient (pid) ON DELETE CASCADE
+        );
+    """;
+        final String TRIGGER_SQL = """
+        CREATE TRIGGER IF NOT EXISTS prevent_archive_changes
+        BEFORE UPDATE ON archive
+        FOR EACH ROW
+        BEGIN
+            SELECT RAISE(ABORT, 'Archivierte Daten sind unveränderlich');
+        END;
+    """;
+
+        try (Statement statement = connection.createStatement()) {
+            statement.execute(SQL);
+            statement.execute(TRIGGER_SQL);
+        } catch (SQLException exception) {
+            System.out.println(exception.getMessage());
+        }
+    }
+
+    private static void setUpArchive() {
+        try {
+            ArchiveDao dao = DaoFactory.getDaoFactory().createArchiveDao();
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
     }
 
@@ -126,16 +171,16 @@ public class SetUpDB {
     private static void setUpTreatments() {
         try {
             TreatmentDao dao = DaoFactory.getDaoFactory().createTreatmentDao();
-            dao.create(new Treatment(1, 1, convertStringToLocalDate("2023-06-03"), convertStringToLocalTime("11:00"), convertStringToLocalTime("15:00"), "Gespräch", "Der Patient hat enorme Angstgefühle und glaubt, er sei überfallen worden. Ihm seien alle Wertsachen gestohlen worden.\nPatient beruhigt sich erst, als alle Wertsachen im Zimmer gefunden worden sind."));
-            dao.create(new Treatment(2, 1, convertStringToLocalDate("2023-06-05"), convertStringToLocalTime("11:00"), convertStringToLocalTime("12:30"), "Gespräch", "Patient irrt auf der Suche nach gestohlenen Wertsachen durch die Etage und bezichtigt andere Bewohner des Diebstahls.\nPatient wird in seinen Raum zurückbegleitet und erhält Beruhigungsmittel."));
-            dao.create(new Treatment(3, 2, convertStringToLocalDate("2023-06-04"), convertStringToLocalTime("07:30"), convertStringToLocalTime("08:00"), "Waschen", "Patient mit Waschlappen gewaschen und frisch angezogen. Patient gewendet."));
-            dao.create(new Treatment(4, 1, convertStringToLocalDate("2023-06-06"), convertStringToLocalTime("15:10"), convertStringToLocalTime("16:00"), "Spaziergang", "Spaziergang im Park, Patient döst  im Rollstuhl ein"));
-            dao.create(new Treatment(8, 1, convertStringToLocalDate("2023-06-08"), convertStringToLocalTime("15:00"), convertStringToLocalTime("16:00"), "Spaziergang", "Parkspaziergang; Patient ist heute lebhafter und hat klare Momente; erzählt von seiner Tochter"));
-            dao.create(new Treatment(9, 2, convertStringToLocalDate("2023-06-07"), convertStringToLocalTime("11:00"), convertStringToLocalTime("11:30"), "Waschen", "Waschen per Dusche auf einem Stuhl; Patientin gewendet;"));
-            dao.create(new Treatment(12, 5, convertStringToLocalDate("2023-06-08"), convertStringToLocalTime("15:00"), convertStringToLocalTime("15:30"), "Physiotherapie", "Übungen zur Stabilisation und Mobilisierung der Rückenmuskulatur"));
-            dao.create(new Treatment(14, 4, convertStringToLocalDate("2023-08-24"), convertStringToLocalTime("09:30"), convertStringToLocalTime("10:15"), "KG", "Lympfdrainage"));
-            dao.create(new Treatment(16, 6, convertStringToLocalDate("2023-08-31"), convertStringToLocalTime("13:30"), convertStringToLocalTime("13:45"), "Toilettengang", "Hilfe beim Toilettengang; Patientin klagt über Schmerzen beim Stuhlgang. Gabe von Iberogast"));
-            dao.create(new Treatment(17, 6, convertStringToLocalDate("2023-09-01"), convertStringToLocalTime("16:00"), convertStringToLocalTime("17:00"), "KG", "Massage der Extremitäten zur Verbesserung der Durchblutung"));
+            dao.create(new Treatment(1, 1, convertStringToLocalDate("2023-06-03"), convertStringToLocalTime("11:00"), convertStringToLocalTime("15:00"), "Gespräch", "Der Patient hat enorme Angstgefühle und glaubt, er sei überfallen worden. Ihm seien alle Wertsachen gestohlen worden.\nPatient beruhigt sich erst, als alle Wertsachen im Zimmer gefunden worden sind.", false));
+            dao.create(new Treatment(2, 1, convertStringToLocalDate("2023-06-05"), convertStringToLocalTime("11:00"), convertStringToLocalTime("12:30"), "Gespräch", "Patient irrt auf der Suche nach gestohlenen Wertsachen durch die Etage und bezichtigt andere Bewohner des Diebstahls.\nPatient wird in seinen Raum zurückbegleitet und erhält Beruhigungsmittel.", false));
+            dao.create(new Treatment(3, 2, convertStringToLocalDate("2023-06-04"), convertStringToLocalTime("07:30"), convertStringToLocalTime("08:00"), "Waschen", "Patient mit Waschlappen gewaschen und frisch angezogen. Patient gewendet.", false));
+            dao.create(new Treatment(4, 1, convertStringToLocalDate("2023-06-06"), convertStringToLocalTime("15:10"), convertStringToLocalTime("16:00"), "Spaziergang", "Spaziergang im Park, Patient döst  im Rollstuhl ein", false));
+            dao.create(new Treatment(8, 1, convertStringToLocalDate("2023-06-08"), convertStringToLocalTime("15:00"), convertStringToLocalTime("16:00"), "Spaziergang", "Parkspaziergang; Patient ist heute lebhafter und hat klare Momente; erzählt von seiner Tochter", false));
+            dao.create(new Treatment(9, 2, convertStringToLocalDate("2023-06-07"), convertStringToLocalTime("11:00"), convertStringToLocalTime("11:30"), "Waschen", "Waschen per Dusche auf einem Stuhl; Patientin gewendet;", false));
+            dao.create(new Treatment(12, 5, convertStringToLocalDate("2023-06-08"), convertStringToLocalTime("15:00"), convertStringToLocalTime("15:30"), "Physiotherapie", "Übungen zur Stabilisation und Mobilisierung der Rückenmuskulatur", false));
+            dao.create(new Treatment(14, 4, convertStringToLocalDate("2023-08-24"), convertStringToLocalTime("09:30"), convertStringToLocalTime("10:15"), "KG", "Lympfdrainage", false));
+            dao.create(new Treatment(16, 6, convertStringToLocalDate("2023-08-31"), convertStringToLocalTime("13:30"), convertStringToLocalTime("13:45"), "Toilettengang", "Hilfe beim Toilettengang; Patientin klagt über Schmerzen beim Stuhlgang. Gabe von Iberogast", false));
+            dao.create(new Treatment(17, 6, convertStringToLocalDate("2023-09-01"), convertStringToLocalTime("16:00"), convertStringToLocalTime("17:00"), "KG", "Massage der Extremitäten zur Verbesserung der Durchblutung", false));
         } catch (SQLException exception) {
             exception.printStackTrace();
         }

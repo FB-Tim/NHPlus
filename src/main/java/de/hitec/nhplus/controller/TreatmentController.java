@@ -63,6 +63,7 @@ public class TreatmentController {
         this.textFieldEnd.setText(this.treatment.getEnd());
         this.textFieldDescription.setText(this.treatment.getDescription());
         this.textAreaRemarks.setText(this.treatment.getRemarks());
+
     }
 
     @FXML

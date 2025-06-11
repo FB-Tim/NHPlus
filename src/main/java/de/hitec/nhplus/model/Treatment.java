@@ -13,6 +13,9 @@ public class Treatment {
     private LocalTime end;
     private String description;
     private String remarks;
+    private boolean status;  // der Parameter für abgeschloßene Behandlungen
+    private LocalDate delete_date;
+    private String comment;
 
     /**
      * Constructor to initiate an object of class <code>Treatment</code> with the given parameter. Use this constructor
@@ -25,14 +28,16 @@ public class Treatment {
      * @param description Description of the treatment.
      * @param remarks Remarks to the treatment.
      */
+
     public Treatment(long pid, LocalDate date, LocalTime begin,
-                     LocalTime end, String description, String remarks) {
+                     LocalTime end, String description, String remarks, boolean status) {
         this.pid = pid;
         this.date = date;
         this.begin = begin;
         this.end = end;
         this.description = description;
         this.remarks = remarks;
+        this.status = status;
     }
 
     /**
@@ -48,7 +53,7 @@ public class Treatment {
      * @param remarks Remarks to the treatment.
      */
     public Treatment(long tid, long pid, LocalDate date, LocalTime begin,
-                     LocalTime end, String description, String remarks) {
+                     LocalTime end, String description, String remarks, boolean status) {
         this.tid = tid;
         this.pid = pid;
         this.date = date;
@@ -56,6 +61,21 @@ public class Treatment {
         this.end = end;
         this.description = description;
         this.remarks = remarks;
+        this.status = status;
+    }
+
+    public Treatment(long tid, long pid, LocalDate date, LocalTime begin,
+                     LocalTime end, String description, String remarks, boolean status, LocalDate delete_date, String comment) {
+        this.tid = tid;
+        this.pid = pid;
+        this.date = date;
+        this.begin = begin;
+        this.end = end;
+        this.description = description;
+        this.remarks = remarks;
+        this.status = status;
+        this.delete_date = delete_date;
+        this.comment = comment;
     }
 
     public long getTid() {
@@ -70,6 +90,10 @@ public class Treatment {
         return date.toString();
     }
 
+    public LocalDate getDateOfDelete() {
+        return delete_date == null ? null : delete_date;
+    }
+
     public String getBegin() {
         return begin.toString();
     }
@@ -78,33 +102,47 @@ public class Treatment {
         return end.toString();
     }
 
-    public void setDate(String date) {
-        this.date = DateConverter.convertStringToLocalDate(date);
-    }
-
-    public void setBegin(String begin) {
-        this.begin = DateConverter.convertStringToLocalTime(begin);;
-    }
-
-    public void setEnd(String end) {
-        this.end = DateConverter.convertStringToLocalTime(end);;
-    }
-
     public String getDescription() {
         return description;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public boolean getStatus() {
+        return status;
     }
 
     public String getRemarks() {
         return remarks;
     }
 
+    public String getComment() {return comment;}
+
+    public void setDate(String date) {
+        this.date = DateConverter.convertStringToLocalDate(date);
+    }
+
+    public void setDateOfDelete(LocalDate date) {this.delete_date = date;}
+
+    public void setBegin(String begin) {
+        this.begin = DateConverter.convertStringToLocalTime(begin);
+    }
+
+    public void setEnd(String end) {
+        this.end = DateConverter.convertStringToLocalTime(end);;
+    }
+
+    public  void setComment(String comment) {this.comment = comment;}
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     public void setRemarks(String remarks) {
         this.remarks = remarks;
     }
+
+    public void setStatus(boolean status) {this.status = status;}
+
+    public static String getStatusLabel(boolean status) {return status ? "Archived" : "Active";}
 
     public String toString() {
         return "\nBehandlung" + "\nTID: " + this.tid +
@@ -113,6 +151,8 @@ public class Treatment {
                 "\nBegin: " + this.begin +
                 "\nEnd: " + this.end +
                 "\nDescription: " + this.description +
-                "\nRemarks: " + this.remarks + "\n";
+                "\nRemarks: " + this.remarks + "\n" +
+                "Status: " + this.status + "\n" +  //Hier muss Status geschrieben sein anstatt Locked
+                "Date of delete: " + this.delete_date + "\n";
     }
 }

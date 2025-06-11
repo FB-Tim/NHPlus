@@ -4,6 +4,7 @@ import de.hitec.nhplus.Main;
 import de.hitec.nhplus.datastorage.DaoFactory;
 import de.hitec.nhplus.datastorage.PatientDao;
 import de.hitec.nhplus.datastorage.TreatmentDao;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -19,6 +20,8 @@ import de.hitec.nhplus.model.Treatment;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+
+import static de.hitec.nhplus.model.Treatment.getStatusLabel;
 
 public class AllTreatmentController {
 
@@ -44,10 +47,16 @@ public class AllTreatmentController {
     private TableColumn<Treatment, String> columnDescription;
 
     @FXML
+    private TableColumn<Treatment, String> columnStatus;
+
+    @FXML
     private ComboBox<String> comboBoxPatientSelection;
 
     @FXML
     private Button buttonDelete;
+
+    @FXML
+    private Button buttonCompletion;
 
     private final ObservableList<Treatment> treatments = FXCollections.observableArrayList();
     private TreatmentDao dao;
@@ -59,20 +68,29 @@ public class AllTreatmentController {
         comboBoxPatientSelection.setItems(patientSelection);
         comboBoxPatientSelection.getSelectionModel().select(0);
 
+        columnStatus.setCellValueFactory(cellData -> {
+            boolean status = cellData.getValue().getStatus();
+            return new SimpleStringProperty(getStatusLabel(status));
+        });
         this.columnId.setCellValueFactory(new PropertyValueFactory<>("tid"));
         this.columnPid.setCellValueFactory(new PropertyValueFactory<>("pid"));
         this.columnDate.setCellValueFactory(new PropertyValueFactory<>("date"));
         this.columnBegin.setCellValueFactory(new PropertyValueFactory<>("begin"));
         this.columnEnd.setCellValueFactory(new PropertyValueFactory<>("end"));
         this.columnDescription.setCellValueFactory(new PropertyValueFactory<>("description"));
+        this.columnStatus.setCellValueFactory(new PropertyValueFactory<>("status"));
         this.tableView.setItems(this.treatments);
 
         // Disabling the button to delete treatments as long, as no treatment was selected.
         this.buttonDelete.setDisable(true);
-        this.tableView.getSelectionModel().selectedItemProperty().addListener(
-                (observableValue, oldTreatment, newTreatment) ->
-                        AllTreatmentController.this.buttonDelete.setDisable(newTreatment == null));
+        this.buttonCompletion.setDisable(true); // Deaktivierung des Buttons,
 
+        this.tableView.getSelectionModel().selectedItemProperty().addListener(
+                (observableValue, oldTreatment, newTreatment) -> {
+                        AllTreatmentController.this.buttonDelete.setDisable(newTreatment == null);
+                        AllTreatmentController.this.buttonCompletion.setDisable(newTreatment == null); //damit zuerst die Behandlung ausgewählt werden kann
+                }
+        );
         this.createComboBoxData();
     }
 
@@ -147,6 +165,13 @@ public class AllTreatmentController {
     }
 
     @FXML
+    public void handleCompletion(){
+        int index = this.tableView.getSelectionModel().getSelectedIndex();
+        Treatment treatment = this.treatments.get(index);
+        CompletionTreatmentWindow(treatment);
+    }
+
+    @FXML
     public void handleNewTreatment() {
         try{
             String selectedPatient = this.comboBoxPatientSelection.getSelectionModel().getSelectedItem();
@@ -201,6 +226,25 @@ public class AllTreatmentController {
             // the primary stage should stay in the background
             Stage stage = new Stage();
             TreatmentController controller = loader.getController();
+            controller.initializeController(this, stage, treatment);
+
+            stage.setScene(scene);
+            stage.setResizable(false);
+            stage.showAndWait();
+        } catch (IOException exception) {
+            exception.printStackTrace();
+        }
+    }
+
+    public void CompletionTreatmentWindow(Treatment treatment){
+        try {
+            FXMLLoader loader = new FXMLLoader(Main.class.getResource("/de/hitec/nhplus/CompletionTreatmentView.fxml"));
+            AnchorPane pane = loader.load();
+            Scene scene = new Scene(pane);
+
+            // the primary stage should stay in the background
+            Stage stage = new Stage();
+            CompletionTreatmentController controller = loader.getController();
             controller.initializeController(this, stage, treatment);
 
             stage.setScene(scene);
