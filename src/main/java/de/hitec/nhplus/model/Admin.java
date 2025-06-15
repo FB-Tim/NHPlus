@@ -22,4 +22,10 @@ public class Admin extends Person {
         return password;
     }
 
+    public long getAid() { return aid.get(); }
+
+    @Override
+    public boolean isAdmin() {
+        return true;
+    }
 }

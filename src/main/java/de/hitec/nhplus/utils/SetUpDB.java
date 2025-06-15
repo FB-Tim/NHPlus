@@ -74,7 +74,8 @@ public class SetUpDB {
                 "   id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "   firstname TEXT NOT NULL, " +
                 "   surname TEXT NOT NULL, " +
-                "   phoneNumber TEXT NOT NULL" +
+                "   phoneNumber TEXT NOT NULL, " +
+                "   password TEXT NOT NULL" +
                 ");";
         try (Statement statement = connection.createStatement()) {
             statement.execute(SQL);
@@ -134,9 +135,11 @@ public class SetUpDB {
     private static void setUpNurses() {
         try {
             NurseDao dao = DaoFactory.getDaoFactory().createNurseDao();
-            dao.create(new Nurse("Alice",  "Hansen", "017802365843"));
-            dao.create(new Nurse("Bob", "Baumeister", "016590754674"));
-            dao.create(new Nurse("Egon", "Kowalski", "015901857037"));
+            String plainPassword = "Nurse123";
+            String bcryptHashString = BCrypt.withDefaults().hashToString(12, plainPassword.toCharArray());
+            dao.create(new Nurse("Alice",  "Hansen", "017802365843", bcryptHashString));
+            dao.create(new Nurse("Bob", "Baumeister", "016590754674", bcryptHashString));
+            dao.create(new Nurse("Egon", "Kowalski", "015901857037", bcryptHashString));
         } catch (SQLException exception) {
             exception.printStackTrace();
         }

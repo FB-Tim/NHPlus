@@ -5,7 +5,19 @@
 <?import javafx.scene.layout.*?>
 
 <BorderPane fx:id="mainBorderPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="688.0" prefWidth="926.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.hitec.nhplus.controller.MainWindowController" stylesheets="@Application.css">
-   <left>
+    <top>
+        <HBox spacing="10.0" BorderPane.alignment="CENTER">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10" />
+            </padding>
+            <children>
+                <Label text="Willkommen!" />
+                <Pane HBox.hgrow="ALWAYS" />
+                <Button text="Logout" onAction="#handleLogout" />
+            </children>
+        </HBox>
+    </top>
+    <left>
       <VBox id="vBox" alignment="CENTER" spacing="50.0" styleClass="vBox" stylesheets="@Application.css" BorderPane.alignment="CENTER">
          <children>
             <Button alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" onAction="#handleShowAllPatient" prefWidth="105.0" text="Patienten/innen">
@@ -26,6 +38,10 @@
                <VBox.margin>
                   <Insets bottom="50.0" left="10.0" right="10.0" top="50.0" />
                </VBox.margin></Button>
+             <Button alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" onAction="#handleShowAllAdmins" prefWidth="105.0" text="Admins">
+                 <VBox.margin>
+                     <Insets bottom="50.0" left="10.0" right="10.0" top="50.0" />
+                 </VBox.margin></Button>
          </children>
       </VBox>
    </left>

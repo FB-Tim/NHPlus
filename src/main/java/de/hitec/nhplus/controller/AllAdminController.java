@@ -2,8 +2,8 @@ package de.hitec.nhplus.controller;
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
 import de.hitec.nhplus.datastorage.DaoFactory;
-import de.hitec.nhplus.datastorage.NurseDao;
-import de.hitec.nhplus.model.Nurse;
+import de.hitec.nhplus.datastorage.AdminDao;
+import de.hitec.nhplus.model.Admin;
 import de.hitec.nhplus.utils.DateConverter;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -21,22 +21,22 @@ import java.sql.SQLException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class AllNurseController {
+public class AllAdminController {
 
     @FXML
-    private TableView<Nurse> tableView;
+    private TableView<Admin> tableView;
 
     @FXML
-    private TableColumn<Nurse, Integer> colID;
+    private TableColumn<Admin, Integer> colID;
 
     @FXML
-    private TableColumn<Nurse, String> colFirstName;
+    private TableColumn<Admin, String> colFirstName;
 
     @FXML
-    private TableColumn<Nurse, String> colSurname;
+    private TableColumn<Admin, String> colSurname;
 
     @FXML
-    private TableColumn<Nurse, String> colTelephone;
+    private TableColumn<Admin, String> colTelephone;
 
     @FXML
     private Button btnDelete;
@@ -53,11 +53,8 @@ public class AllNurseController {
     @FXML
     private TextField txtPassword;
 
-    @FXML
-    private TextField txfTelephone;
-
-    private final ObservableList<Nurse> nurses = FXCollections.observableArrayList();
-    private NurseDao dao;
+    private final ObservableList<Admin> admins = FXCollections.observableArrayList();
+    private AdminDao dao;
 
     /**
      * When <code>initialize()</code> gets called, all fields are already initialized. For example from the FXMLLoader
@@ -67,7 +64,7 @@ public class AllNurseController {
     public void initialize() {
         this.readAllAndShowInTableView();
 
-        this.colID.setCellValueFactory(new PropertyValueFactory<>("nid"));
+        this.colID.setCellValueFactory(new PropertyValueFactory<>("aid"));
 
         // CellValueFactory to show property values in TableView
         this.colFirstName.setCellValueFactory(new PropertyValueFactory<>("firstName"));
@@ -77,26 +74,22 @@ public class AllNurseController {
         this.colSurname.setCellValueFactory(new PropertyValueFactory<>("surname"));
         this.colSurname.setCellFactory(TextFieldTableCell.forTableColumn());
 
-        this.colTelephone.setCellValueFactory(new PropertyValueFactory<>("phoneNumber"));
-        this.colTelephone.setCellFactory(TextFieldTableCell.forTableColumn());
-
         //Anzeigen der Daten
-        this.tableView.setItems(this.nurses);
+        this.tableView.setItems(this.admins);
 
         this.btnDelete.setDisable(true);
-        this.tableView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Nurse>() {
+        this.tableView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Admin>() {
             @Override
-            public void changed(ObservableValue<? extends Nurse> observableValue, Nurse oldNurse, Nurse newNurse) {;
-                AllNurseController.this.btnDelete.setDisable(newNurse == null);
+            public void changed(ObservableValue<? extends Admin> observableValue, Admin oldAdmin, Admin newAdmin) {;
+                AllAdminController.this.btnDelete.setDisable(newAdmin == null);
             }
         });
 
         this.btnAdd.setDisable(true);
-        ChangeListener<String> inputNewNurseListener = (observableValue, oldText, newText) ->
-            AllNurseController.this.btnAdd.setDisable(!AllNurseController.this.areInputDataValid());
-        this.txfSurname.textProperty().addListener(inputNewNurseListener);
-        this.txfFirstname.textProperty().addListener(inputNewNurseListener);
-        this.txfTelephone.textProperty().addListener(inputNewNurseListener);
+        ChangeListener<String> inputNewAdminListener = (observableValue, oldText, newText) ->
+                AllAdminController.this.btnAdd.setDisable(!AllAdminController.this.areInputDataValid());
+        this.txfSurname.textProperty().addListener(inputNewAdminListener);
+        this.txfFirstname.textProperty().addListener(inputNewAdminListener);
     }
 
     /**
@@ -105,7 +98,7 @@ public class AllNurseController {
      * @param event Event including the changed object and the change.
      */
     @FXML
-    public void handleOnEditFirstname(TableColumn.CellEditEvent<Nurse, String> event) {
+    public void handleOnEditFirstname(TableColumn.CellEditEvent<Admin, String> event) {
         event.getRowValue().setFirstName(event.getNewValue());
         this.doUpdate(event);
     }
@@ -116,28 +109,17 @@ public class AllNurseController {
      * @param event Event including the changed object and the change.
      */
     @FXML
-    public void handleOnEditSurname(TableColumn.CellEditEvent<Nurse, String> event) {
+    public void handleOnEditSurname(TableColumn.CellEditEvent<Admin, String> event) {
         event.getRowValue().setSurname(event.getNewValue());
         this.doUpdate(event);
     }
 
     /**
-     * When a cell of the column with dates of birth was changed, this method will be called, to persist the change.
+     * Updates a admin by calling the method <code>update()</code> of {@link AdminDao}
      *
      * @param event Event including the changed object and the change.
      */
-    @FXML
-    public void handleOnEditTelephone(TableColumn.CellEditEvent<Nurse, String> event) {
-        event.getRowValue().setPhoneNumber(event.getNewValue());
-        this.doUpdate(event);
-    }
-
-    /**
-     * Updates a nurse by calling the method <code>update()</code> of {@link NurseDao}
-     *
-     * @param event Event including the changed object and the change.
-     */
-    private void doUpdate(TableColumn.CellEditEvent<Nurse, String> event) {
+    private void doUpdate(TableColumn.CellEditEvent<Admin, String> event) {
         try {
             this.dao.update(event.getRowValue());
         } catch (SQLException exception) {
@@ -146,30 +128,30 @@ public class AllNurseController {
     }
 
     /**
-     * Reloads all nurses to the table by clearing the list of all nurses and filling it again by all persisted
-     * nurses, delivered by {@link NurseDao}.
+     * Reloads all admins to the table by clearing the list of all admins and filling it again by all persisted
+     * admins, delivered by {@link AdminDao}.
      */
     private void readAllAndShowInTableView() {
-        this.nurses.clear();
-        this.dao = DaoFactory.getDaoFactory().createNurseDao();
+        this.admins.clear();
+        this.dao = DaoFactory.getDaoFactory().createAdminDao();
         try {
-            this.nurses.addAll(this.dao.readAll());
+            this.admins.addAll(this.dao.readAll());
         } catch (SQLException exception) {
             exception.printStackTrace();
         }
     }
 
     /**
-     * This method handles events fired by the button to delete nurses. It calls {@link NurseDao} to delete the
-     * nurse from the database and removes the object from the list, which is the data source of the
+     * This method handles events fired by the button to delete admins. It calls {@link AdminDao} to delete the
+     * admin from the database and removes the object from the list, which is the data source of the
      * <code>TableView</code>.
      */
     @FXML
     public void handleDelete() {
-        Nurse selectedItem = this.tableView.getSelectionModel().getSelectedItem();
+        Admin selectedItem = this.tableView.getSelectionModel().getSelectedItem();
         if (selectedItem != null) {
             try {
-                DaoFactory.getDaoFactory().createNurseDao().deleteById(selectedItem.getNid());
+                DaoFactory.getDaoFactory().createAdminDao().deleteById(selectedItem.getAid());
                 this.tableView.getItems().remove(selectedItem);
             } catch (SQLException exception) {
                 exception.printStackTrace();
@@ -178,19 +160,18 @@ public class AllNurseController {
     }
 
     /**
-     * This method handles the events fired by the button to add a nurse. It collects the data from the
-     * <code>TextField</code>s, creates an object of class <code>Nurse</code> of it and passes the object to
-     * {@link NurseDao} to persist the data.
+     * This method handles the events fired by the button to add a admin. It collects the data from the
+     * <code>TextField</code>s, creates an object of class <code>Admin</code> of it and passes the object to
+     * {@link AdminDao} to persist the data.
      */
     @FXML
     public void handleAdd() {
         String surname = this.txfSurname.getText();
         String firstName = this.txfFirstname.getText();
-        String phoneNumber = this.txfTelephone.getText();
         String plainPassword = this.txtPassword.getText();
         String bcryptHashString = BCrypt.withDefaults().hashToString(12, plainPassword.toCharArray());
         try {
-            this.dao.create(new Nurse(firstName, surname, phoneNumber, bcryptHashString));
+            this.dao.create(new Admin(firstName, surname, bcryptHashString));
         } catch (SQLException exception) {
             exception.printStackTrace();
         }
@@ -204,21 +185,10 @@ public class AllNurseController {
     private void clearTextfields() {
         this.txfFirstname.clear();
         this.txfSurname.clear();
-        this.txfTelephone.clear();
+        this.txtPassword.clear();
     }
 
     private boolean areInputDataValid() {
-        if (!this.txfTelephone.getText().isBlank()) {
-            // TODO: Find better Regex
-            String regex = "\\(?([\\d \\-\\)\\–\\+\\/\\(]+){6,}\\)?([ .\\-–\\/]?)([\\d]+)";
-            Pattern p = Pattern.compile(regex);
-            Matcher m = p.matcher(this.txfTelephone.getText());
-
-            if (!m.matches()) {
-                return false;
-            }
-        }
-
-        return !this.txfFirstname.getText().isBlank() && !this.txfSurname.getText().isBlank() && !this.txfTelephone.getText().isBlank();
+        return !this.txfFirstname.getText().isBlank() && !this.txfSurname.getText().isBlank();
     }
 }

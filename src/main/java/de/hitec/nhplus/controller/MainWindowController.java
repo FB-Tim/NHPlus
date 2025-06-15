@@ -1,6 +1,7 @@
 package de.hitec.nhplus.controller;
 
 import de.hitec.nhplus.Main;
+import de.hitec.nhplus.utils.SessionManager;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -38,6 +39,34 @@ public class MainWindowController {
         FXMLLoader loader = new FXMLLoader(Main.class.getResource("/de/hitec/nhplus/AllCaregiverView.fxml"));
         try {
             mainBorderPane.setCenter(loader.load());
+        } catch (IOException exception) {
+            exception.printStackTrace();
+        }
+    }
+
+
+    @FXML
+    private void handleShowAllAdmins(ActionEvent event) {
+        FXMLLoader loader = new FXMLLoader(Main.class.getResource("/de/hitec/nhplus/AllAdminsView.fxml"));
+        try {
+            mainBorderPane.setCenter(loader.load());
+        } catch (IOException exception) {
+            exception.printStackTrace();
+        }
+    }
+
+
+    @FXML
+    private void handleLogout(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(Main.class.getResource("/de/hitec/nhplus/LoginView.fxml"));
+            javafx.scene.Parent root = loader.load();
+
+            javafx.stage.Stage stage = (javafx.stage.Stage) mainBorderPane.getScene().getWindow();
+            stage.getScene().setRoot(root);
+            stage.sizeToScene();
+            SessionManager.clearSession();
+
         } catch (IOException exception) {
             exception.printStackTrace();
         }

@@ -107,6 +107,22 @@ public class AdminDao extends DaoImp<Admin> {
         return list;
     }
 
+    public Admin findByFirstName(String firstName) {
+        Admin admin = null;
+        try {
+            String sql = "SELECT * FROM admin WHERE firstname = ?";
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setString(1, firstName);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                admin = getInstanceFromResultSet(rs);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return admin;
+    }
+
 
     /**
      * Generates a <code>PreparedStatement</code> to update the given Admin, identified
