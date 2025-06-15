@@ -54,6 +54,7 @@ public class NewTreatmentController {
         this.buttonAdd.setDisable(true);
         ChangeListener<String> inputNewPatientListener = (observableValue, oldText, newText) ->
                 NewTreatmentController.this.buttonAdd.setDisable(NewTreatmentController.this.areInputDataInvalid());
+
         this.textFieldBegin.textProperty().addListener(inputNewPatientListener);
         this.textFieldEnd.textProperty().addListener(inputNewPatientListener);
         this.textFieldDescription.textProperty().addListener(inputNewPatientListener);
@@ -99,6 +100,7 @@ public class NewTreatmentController {
         } catch (SQLException exception) {
             exception.printStackTrace();
         }
+
     }
 
     @FXML
