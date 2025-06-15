@@ -5,6 +5,7 @@ import de.hitec.nhplus.datastorage.DaoFactory;
 import de.hitec.nhplus.datastorage.NurseDao;
 import de.hitec.nhplus.model.Nurse;
 import de.hitec.nhplus.utils.DateConverter;
+import de.hitec.nhplus.utils.SessionManager;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -56,6 +57,8 @@ public class AllNurseController {
     @FXML
     private TextField txfTelephone;
 
+
+
     private final ObservableList<Nurse> nurses = FXCollections.observableArrayList();
     private NurseDao dao;
 
@@ -65,38 +68,76 @@ public class AllNurseController {
      * configured.
      */
     public void initialize() {
-        this.readAllAndShowInTableView();
+        setupTableColumns();
+        loadAndShowData();
+        setupSelectionListener();
+        setupInputValidationListener();
+        applyUserPermissions();
+    }
 
-        this.colID.setCellValueFactory(new PropertyValueFactory<>("nid"));
+    private void setupTableColumns() {
+        colID.setCellValueFactory(new PropertyValueFactory<>("nid"));
 
-        // CellValueFactory to show property values in TableView
-        this.colFirstName.setCellValueFactory(new PropertyValueFactory<>("firstName"));
-        // CellFactory to write property values from with in the TableView
-        this.colFirstName.setCellFactory(TextFieldTableCell.forTableColumn());
+        colFirstName.setCellValueFactory(new PropertyValueFactory<>("firstName"));
+        colFirstName.setCellFactory(TextFieldTableCell.forTableColumn());
 
-        this.colSurname.setCellValueFactory(new PropertyValueFactory<>("surname"));
-        this.colSurname.setCellFactory(TextFieldTableCell.forTableColumn());
+        colSurname.setCellValueFactory(new PropertyValueFactory<>("surname"));
+        colSurname.setCellFactory(TextFieldTableCell.forTableColumn());
 
-        this.colTelephone.setCellValueFactory(new PropertyValueFactory<>("phoneNumber"));
-        this.colTelephone.setCellFactory(TextFieldTableCell.forTableColumn());
+        colTelephone.setCellValueFactory(new PropertyValueFactory<>("phoneNumber"));
+        colTelephone.setCellFactory(TextFieldTableCell.forTableColumn());
+    }
 
-        //Anzeigen der Daten
-        this.tableView.setItems(this.nurses);
+    private void loadAndShowData() {
+        readAllAndShowInTableView();
+        tableView.setItems(nurses);
+    }
 
-        this.btnDelete.setDisable(true);
-        this.tableView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Nurse>() {
-            @Override
-            public void changed(ObservableValue<? extends Nurse> observableValue, Nurse oldNurse, Nurse newNurse) {;
-                AllNurseController.this.btnDelete.setDisable(newNurse == null);
-            }
+    private void setupSelectionListener() {
+        btnDelete.setDisable(true);
+        tableView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+            btnDelete.setDisable(newSelection == null);
         });
+    }
 
-        this.btnAdd.setDisable(true);
-        ChangeListener<String> inputNewNurseListener = (observableValue, oldText, newText) ->
-            AllNurseController.this.btnAdd.setDisable(!AllNurseController.this.areInputDataValid());
-        this.txfSurname.textProperty().addListener(inputNewNurseListener);
-        this.txfFirstname.textProperty().addListener(inputNewNurseListener);
-        this.txfTelephone.textProperty().addListener(inputNewNurseListener);
+    private void setupInputValidationListener() {
+        btnAdd.setDisable(true);
+        ChangeListener<String> inputListener = (obs, oldVal, newVal) -> {
+            btnAdd.setDisable(!areInputDataValid());
+        };
+        txfSurname.textProperty().addListener(inputListener);
+        txfFirstname.textProperty().addListener(inputListener);
+        txfTelephone.textProperty().addListener(inputListener);
+    }
+
+    private void applyUserPermissions() {
+        boolean isAdmin = SessionManager.getCurrentUser() != null && SessionManager.getCurrentUser().isAdmin();
+
+        btnAdd.setVisible(isAdmin);
+        btnAdd.setManaged(isAdmin);
+
+        btnDelete.setVisible(isAdmin);
+        btnDelete.setManaged(isAdmin);
+
+        txfFirstname.setVisible(isAdmin);
+        txfFirstname.setManaged(isAdmin);
+
+        txfSurname.setVisible(isAdmin);
+        txfSurname.setManaged(isAdmin);
+
+        txfTelephone.setVisible(isAdmin);
+        txfTelephone.setManaged(isAdmin);
+
+        txtPassword.setVisible(isAdmin);
+        txtPassword.setManaged(isAdmin);
+
+        if (!isAdmin) {
+            colFirstName.setEditable(false);
+            colSurname.setEditable(false);
+            colTelephone.setEditable(false);
+            btnAdd.setDisable(true);
+            btnDelete.setDisable(true);
+        }
     }
 
     /**

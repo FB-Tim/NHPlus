@@ -5,6 +5,7 @@ import de.hitec.nhplus.utils.SessionManager;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.control.Button;
 import javafx.scene.layout.BorderPane;
 
 import java.io.IOException;
@@ -13,6 +14,24 @@ public class MainWindowController {
 
     @FXML
     private BorderPane mainBorderPane;
+
+    @FXML
+    private Button btnAdmins;
+
+
+    @FXML
+    private void initialize() {
+        if (SessionManager.getCurrentUser().isAdmin()) {
+            System.out.println("Admin, verstecke Button nicht.");
+            btnAdmins.setVisible(true);
+            btnAdmins.setManaged(true);
+        }
+        if (!SessionManager.getCurrentUser().isAdmin()) {
+            System.out.println("Kein Admin, verstecke Button.");
+            btnAdmins.setVisible(false);
+            btnAdmins.setManaged(false);
+        }
+    }
 
     @FXML
     private void handleShowAllPatient(ActionEvent event) {
