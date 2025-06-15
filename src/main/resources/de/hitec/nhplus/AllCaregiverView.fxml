@@ -22,6 +22,7 @@
          <children>
             <TextField fx:id="txfSurname" prefHeight="26.0" prefWidth="220.0" promptText="Nachname" />
             <TextField fx:id="txfFirstname" prefHeight="26.0" prefWidth="220.0" promptText="Vorname" />
+            <PasswordField fx:id="txtPassword" prefHeight="26.0" prefWidth="220.0" promptText="Passwort" />
             <TextField fx:id="txfTelephone" prefWidth="160.0" promptText="Telefonnummer" />
             <Button fx:id="btnAdd" mnemonicParsing="false" onAction="#handleAdd" prefWidth="90.0" text="Hinzufügen" />
             <Button fx:id="btnDelete" mnemonicParsing="false" onAction="#handleDelete" prefWidth="90.0" text="Löschen" />

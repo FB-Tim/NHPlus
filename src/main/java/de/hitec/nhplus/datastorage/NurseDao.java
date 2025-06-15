@@ -27,11 +27,12 @@ public class NurseDao extends DaoImp<Nurse> {
     protected PreparedStatement getCreateStatement(Nurse nurse) {
         PreparedStatement preparedStatement = null;
         try {
-            final String SQL = "INSERT INTO nurse (firstname, surname, phoneNumber) " + "VALUES (?, ?, ?)";
+            final String SQL = "INSERT INTO nurse (firstname, surname, phoneNumber, password) " + "VALUES (?, ?, ?, ?)";
             preparedStatement = this.connection.prepareStatement(SQL);
             preparedStatement.setString(1, nurse.getFirstName());
             preparedStatement.setString(2, nurse.getSurname());
             preparedStatement.setString(3, nurse.getPhoneNumber());
+            preparedStatement.setString(4, nurse.getPassword());
         } catch (SQLException exception) {
             exception.printStackTrace();
         }
@@ -69,7 +70,9 @@ public class NurseDao extends DaoImp<Nurse> {
             result.getInt(1),
             result.getString(2),
             result.getString(3),
-            result.getString(4));
+            result.getString(4),
+            result.getString(5)
+        );
     }
 
     /**
@@ -100,10 +103,26 @@ public class NurseDao extends DaoImp<Nurse> {
     protected ArrayList<Nurse> getListFromResultSet(ResultSet result) throws SQLException {
         ArrayList<Nurse> list = new ArrayList<>();
         while (result.next()) {
-            Nurse nurse = new Nurse(result.getInt(1), result.getString(2), result.getString(3), result.getString(4));
+            Nurse nurse = new Nurse(result.getInt(1), result.getString(2), result.getString(3), result.getString(4), result.getString(5));
             list.add(nurse);
         }
         return list;
+    }
+
+    public Nurse findByFirstName(String firstName) {
+        Nurse nurse = null;
+        try {
+            String sql = "SELECT * FROM nurse WHERE firstname = ?";
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setString(1, firstName);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                nurse = getInstanceFromResultSet(rs);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return nurse;
     }
 
     /**
@@ -122,11 +141,13 @@ public class NurseDao extends DaoImp<Nurse> {
                     "firstname = ?, " +
                     "surname = ?, " +
                     "phoneNumber = ? " +
+                    "password = ? " +
                     "WHERE id = ?";
             preparedStatement = this.connection.prepareStatement(SQL);
             preparedStatement.setString(1, nurse.getFirstName());
             preparedStatement.setString(2, nurse.getSurname());
             preparedStatement.setString(3, nurse.getPhoneNumber());
+            preparedStatement.setString(4, nurse.getPassword());
         } catch (SQLException exception) {
             exception.printStackTrace();
         }

@@ -104,6 +104,10 @@ public class Patient extends Person {
         this.roomNumber.set(roomNumber);
     }
 
+    @Override
+    public boolean isAdmin() {
+        return super.isAdmin();
+    }
 
     /**
      * Adds a treatment to the list of treatments, if the list does not already contain the treatment.
