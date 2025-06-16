@@ -172,4 +172,17 @@ public class NurseDao extends DaoImp<Nurse> {
         }
         return preparedStatement;
     }
+
+    @Override
+    protected PreparedStatement getExportStatement(long nid) {
+        PreparedStatement preparedStatement = null;
+        try{
+            final String SQL = "SELECT * FROM nurse WHERE id = ?";
+            preparedStatement = this.connection.prepareStatement(SQL);
+            preparedStatement.setLong(1, nid);
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+        }
+        return preparedStatement;
+    }
 }
