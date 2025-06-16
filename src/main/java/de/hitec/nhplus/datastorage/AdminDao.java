@@ -169,4 +169,9 @@ public class AdminDao extends DaoImp<Admin> {
         }
         return preparedStatement;
     }
+
+    @Override
+    protected PreparedStatement getExportStatement(long key) {
+        return null;
+    }
 }
