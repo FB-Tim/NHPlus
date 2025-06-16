@@ -71,7 +71,7 @@ public class CompletionTreatmentController {
             this.patient = pDao.read((int) treatment.getPid());
             this.treatment = treatment;
             treatment.setDateOfDelete(convertStringToLocalDate(treatment.getDate()).plusYears(10));
-            treatment.getStatusLabel(treatment.getStatus());
+            //treatment.getStatusLabel(treatment.getStatus());
 
             showData();
         } catch (SQLException exception) {
@@ -88,7 +88,12 @@ public class CompletionTreatmentController {
     public void handleConfirm() {
 
         if((CheckBoxLeave.isSelected() || CheckBoxDead.isSelected())) this.treatment.setStatus(true);
-        this.treatment.setComment(this.comment.getText());
+
+        this.treatment.setComment(
+                CheckBoxLeave.isSelected() ? CheckBoxLeave.getText() :
+                        CheckBoxDead.isSelected() ? CheckBoxDead.getText() : ""
+        );
+
         this.treatment.setDateOfDelete(convertStringToLocalDate(this.dateOfDelete.getText())); ;
 
         areInputDataInvalid();

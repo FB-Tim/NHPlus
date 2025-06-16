@@ -82,11 +82,6 @@
                         <Font name="System Bold" size="13.0" />
                     </font>
                 </Label>
-                <Label text="Kommentar: " GridPane.columnIndex="2" GridPane.rowIndex="2">
-                    <font>
-                        <Font name="System Bold" size="13.0" />
-                    </font>
-                </Label>
                 <Label text="Datum der Entfernung: " GridPane.columnIndex="2" GridPane.rowIndex="4">
                     <font>
                         <Font name="System Bold" size="13.0" />
@@ -102,7 +97,6 @@
                 <fx:define><ToggleGroup fx:id="myGroup"/> </fx:define>
                 <RadioButton fx:id="CheckBoxLeave" text ="verlsassen" GridPane.columnIndex="2" GridPane.rowIndex="1" toggleGroup="$myGroup"/>
                 <RadioButton fx:id="CheckBoxDead" text ="gestorben" GridPane.columnIndex="3" GridPane.rowIndex="1" toggleGroup="$myGroup"/>
-                <TextArea fx:id="comment" text="Your comment" GridPane.rowIndex="2" GridPane.columnIndex="3"></TextArea>
                 <Label fx:id="dateOfDelete" GridPane.columnIndex="3" GridPane.rowIndex="4" />
             </children>
         </GridPane>

@@ -106,8 +106,8 @@ public class Treatment {
         return description;
     }
 
-    public boolean getStatus() {
-        return status;
+    public String getStatus() {
+        return status ? "Archived" : "Active";
     }
 
     public String getRemarks() {

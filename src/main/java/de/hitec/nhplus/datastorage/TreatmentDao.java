@@ -43,7 +43,7 @@ public class TreatmentDao extends DaoImp<Treatment> {
             preparedStatement.setString(4, treatment.getEnd());
             preparedStatement.setString(5, treatment.getDescription());
             preparedStatement.setString(6, treatment.getRemarks());
-            preparedStatement.setBoolean(7, treatment.getStatus()); // Status mit 7
+            preparedStatement.setString(7, treatment.getStatus()); // Status mit 7
         } catch (SQLException exception) {
             exception.printStackTrace();
         }
@@ -182,7 +182,7 @@ public class TreatmentDao extends DaoImp<Treatment> {
             preparedStatement.setString(4, treatment.getEnd());
             preparedStatement.setString(5, treatment.getDescription());
             preparedStatement.setString(6, treatment.getRemarks());
-            preparedStatement.setBoolean(7, treatment.getStatus()); // Status mit 7
+            preparedStatement.setString(7, treatment.getStatus()); // Status mit 7
             preparedStatement.setLong(8, treatment.getTid());
         } catch (SQLException exception) {
             exception.printStackTrace();

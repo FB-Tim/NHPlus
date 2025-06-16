@@ -68,10 +68,6 @@ public class AllTreatmentController {
         comboBoxPatientSelection.setItems(patientSelection);
         comboBoxPatientSelection.getSelectionModel().select(0);
 
-        columnStatus.setCellValueFactory(cellData -> {
-            boolean status = cellData.getValue().getStatus();
-            return new SimpleStringProperty(getStatusLabel(status));
-        });
         this.columnId.setCellValueFactory(new PropertyValueFactory<>("tid"));
         this.columnPid.setCellValueFactory(new PropertyValueFactory<>("pid"));
         this.columnDate.setCellValueFactory(new PropertyValueFactory<>("date"));

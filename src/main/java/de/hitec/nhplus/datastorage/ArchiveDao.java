@@ -32,7 +32,7 @@ public class ArchiveDao extends DaoImp<Treatment> {
             preparedStatement.setString(5, treatment.getEnd());
             preparedStatement.setString(6, treatment.getDescription());
             preparedStatement.setString(7, treatment.getRemarks());
-            preparedStatement.setBoolean(8, treatment.getStatus());
+            preparedStatement.setString(8, treatment.getStatus());
             if (treatment.getDateOfDelete() == null) {
                 preparedStatement.setString(9, null);
             } else {
@@ -142,7 +142,7 @@ public class ArchiveDao extends DaoImp<Treatment> {
             preparedStatement.setString(4, treatment.getEnd());
             preparedStatement.setString(5, treatment.getDescription());
             preparedStatement.setString(6, treatment.getRemarks());
-            preparedStatement.setBoolean(7, treatment.getStatus()); // Status mit 7
+            preparedStatement.setString(7, treatment.getStatus()); // Status mit 7
             preparedStatement.setString(8, treatment.getDateOfDelete().toString()); // Date of Delete
             preparedStatement.setString(9, treatment.getComment());
             preparedStatement.setLong(10, treatment.getTid());
