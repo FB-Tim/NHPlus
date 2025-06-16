@@ -3,8 +3,8 @@ module de.hitec.nhplus {
     requires javafx.fxml;
 
     requires org.controlsfx.controls;
-    requires java.sql;
     requires org.xerial.sqlitejdbc;
+    requires com.fasterxml.jackson.databind;
 
     opens de.hitec.nhplus to javafx.fxml;
     opens de.hitec.nhplus.controller to javafx.fxml;
