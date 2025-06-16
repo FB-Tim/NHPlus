@@ -4,7 +4,8 @@ module de.hitec.nhplus {
 
     requires org.controlsfx.controls;
     requires java.sql;
-    requires org.xerial.sqlitejdbc;
+    requires io.github.willena.sqlitejdbc;
+    requires io.github.cdimascio.dotenv.java;
 
     opens de.hitec.nhplus to javafx.fxml;
     opens de.hitec.nhplus.controller to javafx.fxml;

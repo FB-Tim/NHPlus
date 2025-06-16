@@ -26,6 +26,9 @@ public class SetUpDB {
      */
     public static void setUpDb() {
         Connection connection = ConnectionBuilder.getConnection();
+
+        encryptDatabaseIfNeeded(connection);
+        
         SetUpDB.wipeDb(connection);
         SetUpDB.setUpTablePatient(connection);
         SetUpDB.setUpTableNurse(connection);
@@ -138,6 +141,24 @@ public class SetUpDB {
             dao.create(new Treatment(17, 6, convertStringToLocalDate("2023-09-01"), convertStringToLocalTime("16:00"), convertStringToLocalTime("17:00"), "KG", "Massage der Extremitäten zur Verbesserung der Durchblutung"));
         } catch (SQLException exception) {
             exception.printStackTrace();
+        }
+    }
+
+    private static void encryptDatabaseIfNeeded(Connection connection) {
+        try (Statement statement = connection.createStatement()) {
+            statement.execute("PRAGMA key = '';");
+            
+            try {
+                statement.executeQuery("SELECT count(*) FROM sqlite_master;");
+                
+                statement.execute("PRAGMA rekey = '" + ConnectionBuilder.DB_PASSWORD + "';");
+                System.out.println("✔ Datenbank wurde verschlüsselt.");
+            } catch (SQLException e) {
+                System.out.println("Datenbank scheint bereits verschlüsselt zu sein.");
+            }
+        } catch (SQLException e) {
+            System.out.println("Fehler beim Verschlüsseln der Datenbank.");
+            e.printStackTrace();
         }
     }
 

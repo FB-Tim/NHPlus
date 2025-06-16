@@ -37,3 +37,7 @@ build/
 .DS_Store
 
 !doc/
+
+### Source ###
+**/src/main/**/.env
+
