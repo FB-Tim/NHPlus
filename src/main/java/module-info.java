@@ -3,7 +3,10 @@ module de.hitec.nhplus {
     requires javafx.fxml;
 
     requires org.controlsfx.controls;
-    requires org.xerial.sqlitejdbc;
+
+    requires java.sql;
+    requires io.github.willena.sqlitejdbc;
+    requires io.github.cdimascio.dotenv.java;
     requires bcrypt;
 
     requires com.fasterxml.jackson.databind;
