@@ -21,6 +21,16 @@ import java.sql.SQLException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Controller class for managing the "All Admins" view in the JavaFX application.
+ * This class provides functionality for displaying, editing, adding, and deleting
+ * admin users in a TableView. It uses the {@link AdminDao} for persistence and
+ * {@link Admin} objects for representing each admin entry.
+ *
+ * The controller binds JavaFX UI components to event handlers and uses listeners
+ * for dynamic UI updates, such as enabling or disabling buttons based on input.
+ */
+
 public class AllAdminController {
 
     @FXML
@@ -57,9 +67,10 @@ public class AllAdminController {
     private AdminDao dao;
 
     /**
-     * When <code>initialize()</code> gets called, all fields are already initialized. For example from the FXMLLoader
-     * after loading an FXML-File. At this point of the lifecycle of the Controller, the fields can be accessed and
-     * configured.
+     * Initializes the controller class. This method is automatically called after
+     * the FXML file has been loaded and all @FXML annotated fields have been initialized.
+     * It sets up the TableView, binds the columns to Admin properties, and adds listeners
+     * for UI controls such as text fields and buttons.
      */
     public void initialize() {
         this.readAllAndShowInTableView();
@@ -93,9 +104,11 @@ public class AllAdminController {
     }
 
     /**
-     * When a cell of the column with first names was changed, this method will be called, to persist the change.
+     * Handles the editing of the "firstName" column in the TableView.
+     * When a first name is edited directly in the table, the new value
+     * is persisted using the AdminDao.
      *
-     * @param event Event including the changed object and the change.
+     * @param event the edit event containing the updated value and Admin object
      */
     @FXML
     public void handleOnEditFirstname(TableColumn.CellEditEvent<Admin, String> event) {
@@ -104,9 +117,11 @@ public class AllAdminController {
     }
 
     /**
-     * When a cell of the column with surnames was changed, this method will be called, to persist the change.
+     * Handles the editing of the "surname" column in the TableView.
+     * When a surname is edited directly in the table, the new value
+     * is persisted using the AdminDao.
      *
-     * @param event Event including the changed object and the change.
+     * @param event the edit event containing the updated value and Admin object
      */
     @FXML
     public void handleOnEditSurname(TableColumn.CellEditEvent<Admin, String> event) {
@@ -115,9 +130,10 @@ public class AllAdminController {
     }
 
     /**
-     * Updates a admin by calling the method <code>update()</code> of {@link AdminDao}
+     * Persists updates to Admin objects when a cell in the TableView is edited.
+     * It calls the {@link AdminDao#update(Admin)} method.
      *
-     * @param event Event including the changed object and the change.
+     * @param event the edit event containing the updated Admin object
      */
     private void doUpdate(TableColumn.CellEditEvent<Admin, String> event) {
         try {
@@ -128,8 +144,9 @@ public class AllAdminController {
     }
 
     /**
-     * Reloads all admins to the table by clearing the list of all admins and filling it again by all persisted
-     * admins, delivered by {@link AdminDao}.
+     * Loads all Admin entries from the database and displays them in the TableView.
+     * It uses the {@link AdminDao#readAll()} method to retrieve data and updates
+     * the observable list that backs the TableView.
      */
     private void readAllAndShowInTableView() {
         this.admins.clear();
@@ -142,9 +159,9 @@ public class AllAdminController {
     }
 
     /**
-     * This method handles events fired by the button to delete admins. It calls {@link AdminDao} to delete the
-     * admin from the database and removes the object from the list, which is the data source of the
-     * <code>TableView</code>.
+     * Handles the delete button action. It deletes the selected Admin entry
+     * from both the database and the TableView.
+     * It uses {@link AdminDao#deleteById(int)} to perform the deletion.
      */
     @FXML
     public void handleDelete() {
@@ -160,9 +177,10 @@ public class AllAdminController {
     }
 
     /**
-     * This method handles the events fired by the button to add a admin. It collects the data from the
-     * <code>TextField</code>s, creates an object of class <code>Admin</code> of it and passes the object to
-     * {@link AdminDao} to persist the data.
+     * Handles the add button action. It creates a new Admin entry using input
+     * from the text fields, hashes the password with BCrypt, and saves the entry
+     * using {@link AdminDao#create(Admin)}.
+     * The TableView is updated and input fields are cleared afterwards.
      */
     @FXML
     public void handleAdd() {
@@ -188,6 +206,11 @@ public class AllAdminController {
         this.txtPassword.clear();
     }
 
+    /**
+     * Validates whether the input fields contain valid data for creating a new admin.
+     *
+     * @return true if both first name and surname fields are non-blank, false otherwise
+     */
     private boolean areInputDataValid() {
         return !this.txfFirstname.getText().isBlank() && !this.txfSurname.getText().isBlank();
     }
