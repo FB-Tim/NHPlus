@@ -1,15 +1,16 @@
 package de.hitec.nhplus.controller;
 
 import de.hitec.nhplus.Main;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import de.hitec.nhplus.datastorage.ArchivePatientDao;
 import de.hitec.nhplus.datastorage.DaoFactory;
 import de.hitec.nhplus.datastorage.PatientDao;
+import de.hitec.nhplus.model.Patient;
 import de.hitec.nhplus.model.Treatment;
+import de.hitec.nhplus.utils.DateConverter;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -19,14 +20,9 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
-import de.hitec.nhplus.model.Patient;
-import de.hitec.nhplus.utils.DateConverter;
-import javafx.stage.FileChooser;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 
-import java.io.File;
-import java.io.IOException;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -35,7 +31,7 @@ import java.time.LocalDate;
 /**
  * The <code>AllPatientController</code> contains the entire logic of the patient view. It determines which data is displayed and how to react to events.
  */
-public class AllPatientController {
+public class AllArchivedPatientController {
 
     @FXML
     private TableView<Patient> tableView;
@@ -59,7 +55,10 @@ public class AllPatientController {
     private TableColumn<Patient, String> columnRoomNumber;
 
     @FXML
-    private TableColumn<Patient, String> columnStatus;
+    private TableColumn<Treatment, String> columnStatus;
+
+    @FXML
+    private TableColumn<Treatment, String> columnDeleteDate;
 
     @FXML
     private Button buttonDelete;
@@ -81,15 +80,12 @@ public class AllPatientController {
 
     @FXML
     private TextField textFieldRoomNumber;
-    @FXML
-    private Button buttonExport;
-
-
+    
     @FXML
     private Button buttonFullCompletion;
 
     private final ObservableList<Patient> patients = FXCollections.observableArrayList();
-    private PatientDao dao;
+    private ArchivePatientDao dao;
 
 
     /**
@@ -101,55 +97,25 @@ public class AllPatientController {
 
 
         this.readAllAndShowInTableView();
-
-        this.buttonFullCompletion.setDisable(true); // Deaktivierung des Buttons,
-
-        this.tableView.getSelectionModel().selectedItemProperty().addListener(
-                (observableValue, oldTreatment, newTreatment) -> {
-                    AllPatientController.this.buttonFullCompletion.setDisable(newTreatment == null); //damit zuerst die Behandlung ausgewählt werden kann
-                }
-        );
-
+        
         this.columnId.setCellValueFactory(new PropertyValueFactory<>("pid"));
-
-        // CellValueFactory to show property values in TableView
+        
         this.columnFirstName.setCellValueFactory(new PropertyValueFactory<>("firstName"));
-        // CellFactory to write property values from with in the TableView
-        this.columnFirstName.setCellFactory(TextFieldTableCell.forTableColumn());
 
         this.columnSurname.setCellValueFactory(new PropertyValueFactory<>("surname"));
-        this.columnSurname.setCellFactory(TextFieldTableCell.forTableColumn());
-
+        
         this.columnDateOfBirth.setCellValueFactory(new PropertyValueFactory<>("dateOfBirth"));
-        this.columnDateOfBirth.setCellFactory(TextFieldTableCell.forTableColumn());
-
+        
         this.columnCareLevel.setCellValueFactory(new PropertyValueFactory<>("careLevel"));
-        this.columnCareLevel.setCellFactory(TextFieldTableCell.forTableColumn());
 
         this.columnRoomNumber.setCellValueFactory(new PropertyValueFactory<>("roomNumber"));
-        this.columnRoomNumber.setCellFactory(TextFieldTableCell.forTableColumn());
-        
+
         this.columnStatus.setCellValueFactory(new PropertyValueFactory<>("status"));
+        
+        this.columnDeleteDate.setCellValueFactory(new PropertyValueFactory<>("dateOfDelete"));
 
         //Anzeigen der Daten
         this.tableView.setItems(this.patients);
-
-        this.buttonDelete.setDisable(true);
-        this.tableView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Patient>() {
-            @Override
-            public void changed(ObservableValue<? extends Patient> observableValue, Patient oldPatient, Patient newPatient) {;
-                AllPatientController.this.buttonDelete.setDisable(newPatient == null);
-            }
-        });
-
-        this.buttonAdd.setDisable(true);
-        ChangeListener<String> inputNewPatientListener = (observableValue, oldText, newText) ->
-                AllPatientController.this.buttonAdd.setDisable(!AllPatientController.this.areInputDataValid());
-        this.textFieldSurname.textProperty().addListener(inputNewPatientListener);
-        this.textFieldFirstName.textProperty().addListener(inputNewPatientListener);
-        this.textFieldDateOfBirth.textProperty().addListener(inputNewPatientListener);
-        this.textFieldCareLevel.textProperty().addListener(inputNewPatientListener);
-        this.textFieldRoomNumber.textProperty().addListener(inputNewPatientListener);
     }
 
     /**
@@ -207,32 +173,6 @@ public class AllPatientController {
         this.doUpdate(event);
     }
 
-    @FXML
-    public void handleCompletion(){
-        int index = this.tableView.getSelectionModel().getSelectedIndex();
-        Patient patient = this.patients.get(index);
-        CompletionTreatmentWindow(patient);
-    }
-
-    public void CompletionTreatmentWindow(Patient patient){
-        try {
-            FXMLLoader loader = new FXMLLoader(Main.class.getResource("/de/hitec/nhplus/CompletionPatientView.fxml"));
-            AnchorPane pane = loader.load();
-            Scene scene = new Scene(pane);
-
-            // the primary stage should stay in the background
-            Stage stage = new Stage();
-            CompletionPatientController controller = loader.getController();
-            controller.initializeController(this, stage, patient);
-
-            stage.setScene(scene);
-            stage.setResizable(false);
-            stage.showAndWait();
-        } catch (IOException exception) {
-            exception.printStackTrace();
-        }
-    }
-
     /**
      * Updates a patient by calling the method <code>update()</code> of {@link PatientDao}.
      *
@@ -252,7 +192,7 @@ public class AllPatientController {
      */
     public void readAllAndShowInTableView() {
         this.patients.clear();
-        this.dao = DaoFactory.getDaoFactory().createPatientDAO();
+        this.dao = DaoFactory.getDaoFactory().createArchivePatientDao();
         try {
             this.patients.addAll(this.dao.readAll());
         } catch (SQLException exception) {
@@ -311,11 +251,6 @@ public class AllPatientController {
         this.textFieldRoomNumber.clear();
     }
 
-    /**
-     * Checks if all input fields for creating a patient are filled out and valid.
-     *
-     * @return {@code true} if all required input fields are valid; {@code false} otherwise.
-     */
     private boolean areInputDataValid() {
         if (!this.textFieldDateOfBirth.getText().isBlank()) {
             try {
@@ -328,34 +263,5 @@ public class AllPatientController {
         return !this.textFieldFirstName.getText().isBlank() && !this.textFieldSurname.getText().isBlank() &&
                 !this.textFieldDateOfBirth.getText().isBlank() && !this.textFieldCareLevel.getText().isBlank() &&
                 !this.textFieldRoomNumber.getText().isBlank();
-    }
-
-    /**
-     * Exports the selected patient as a JSON file using the Jackson library.
-     * Shows a FileChooser dialog to select the export location.
-     */
-    @FXML
-    public void handelExport() {
-        Patient selectedTreatment = tableView.getSelectionModel().getSelectedItem();
-        if (selectedTreatment == null) {
-            System.out.println("Bitte wählen Sie eine Behandlung aus.");
-            return;
-        }
-
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Behandlung als JSON exportieren");
-        fileChooser.setInitialFileName("behandlung_" + selectedTreatment.getPid() + ".json");
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("JSON-Dateien", "*.json"));
-        File file = fileChooser.showSaveDialog(buttonExport.getScene().getWindow());
-
-        if (file != null) {
-            ObjectMapper mapper = new ObjectMapper();
-            try {
-                mapper.writerWithDefaultPrettyPrinter().writeValue(file, selectedTreatment);
-                System.out.println("Export erfolgreich: " + file.getAbsolutePath());
-            } catch (IOException e) {
-                System.err.println("Fehler beim Exportieren: " + e.getMessage());
-            }
-        }
     }
 }

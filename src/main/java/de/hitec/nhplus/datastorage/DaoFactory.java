@@ -37,6 +37,15 @@ public class DaoFactory {
         return new TreatmentDao(ConnectionBuilder.getConnection());
     }
 
+    public TreatmentArchiveDao createTreatmentArchiveDao() {
+        return new TreatmentArchiveDao(ConnectionBuilder.getConnection());
+    }
+
+    public ArchivePatientDao createArchivePatientDao() {
+        return new ArchivePatientDao(ConnectionBuilder.getConnection());
+    }
+
+
     /**
      * Creates and returns a new PatientDao using a shared database connection.
      *

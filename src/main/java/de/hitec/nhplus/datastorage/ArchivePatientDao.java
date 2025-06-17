@@ -11,14 +11,14 @@ import java.util.ArrayList;
  * Implements the Interface <code>DaoImp</code>. Overrides methods to generate specific <code>PreparedStatements</code>,
  * to execute the specific SQL Statements.
  */
-public class PatientDao extends DaoImp<Patient> {
+public class ArchivePatientDao extends DaoImp<Patient> {
 
     /**
      * The constructor initiates an object of <code>PatientDao</code> and passes the connection to its super class.
      *
      * @param connection Object of <code>Connection</code> to execute the SQL-statements.
      */
-    public PatientDao(Connection connection) {
+    public ArchivePatientDao(Connection connection) {
         super(connection);
     }
 
@@ -32,15 +32,20 @@ public class PatientDao extends DaoImp<Patient> {
     protected PreparedStatement getCreateStatement(Patient patient) {
         PreparedStatement preparedStatement = null;
         try {
-            final String SQL = "INSERT INTO patient (firstname, surname, dateOfBirth, carelevel, roomnumber, status) " +
-                    "VALUES (?, ?, ?, ?, ?, ?)";
+            final String SQL = "INSERT INTO patient_archive (firstname, surname, dateOfBirth, carelevel, roomnumber, status, dateOfDelete) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?)";
             preparedStatement = this.connection.prepareStatement(SQL);
             preparedStatement.setString(1, patient.getFirstName());
             preparedStatement.setString(2, patient.getSurname());
             preparedStatement.setString(3, patient.getDateOfBirth());
             preparedStatement.setString(4, patient.getCareLevel());
             preparedStatement.setString(5, patient.getRoomNumber());
-            preparedStatement.setString(6, patient.getStatus());
+            preparedStatement.setBoolean(6, patient.getStatusBool());
+            if (patient.getDateOfDelete() == null) {
+                preparedStatement.setString(7, null);
+            } else {
+                preparedStatement.setString(7, patient.getDateOfDelete().toString());
+            }
         } catch (SQLException exception) {
             exception.printStackTrace();
         }
@@ -57,7 +62,7 @@ public class PatientDao extends DaoImp<Patient> {
     protected PreparedStatement getReadByIDStatement(long pid) {
         PreparedStatement preparedStatement = null;
         try {
-            final String SQL = "SELECT * FROM patient WHERE pid = ?";
+            final String SQL = "SELECT * FROM patient_archive WHERE pid = ?";
             preparedStatement = this.connection.prepareStatement(SQL);
             preparedStatement.setLong(1, pid);
         } catch (SQLException exception) {
@@ -81,7 +86,10 @@ public class PatientDao extends DaoImp<Patient> {
                 DateConverter.convertStringToLocalDate(result.getString(4)),
                 result.getString(5),
                 result.getString(6),
-                result.getBoolean(7));
+                result.getBoolean(7),
+                DateConverter.convertStringToLocalDate(result.getString(8)));
+
+
     }
 
     /**
@@ -93,7 +101,7 @@ public class PatientDao extends DaoImp<Patient> {
     protected PreparedStatement getReadAllStatement() {
         PreparedStatement statement = null;
         try {
-            final String SQL = "SELECT * FROM patient";
+            final String SQL = "SELECT * FROM patient_archive";
             statement = this.connection.prepareStatement(SQL);
         } catch (SQLException exception) {
             exception.printStackTrace();
@@ -113,9 +121,10 @@ public class PatientDao extends DaoImp<Patient> {
         ArrayList<Patient> list = new ArrayList<>();
         while (result.next()) {
             LocalDate date = DateConverter.convertStringToLocalDate(result.getString(4));
+            LocalDate date_delete = DateConverter.convertStringToLocalDate(result.getString(8));
             Patient patient = new Patient(result.getInt(1), result.getString(2),
                     result.getString(3), date,
-                    result.getString(5), result.getString(6), result.getBoolean(7));
+                    result.getString(5), result.getString(6), result.getBoolean(7), date_delete);
             list.add(patient);
         }
         return list;
@@ -133,13 +142,14 @@ public class PatientDao extends DaoImp<Patient> {
         PreparedStatement preparedStatement = null;
         try {
             final String SQL =
-                    "UPDATE patient SET " +
+                    "UPDATE patient_archive SET " +
                             "firstname = ?, " +
                             "surname = ?, " +
                             "dateOfBirth = ?, " +
                             "carelevel = ?, " +
-                            "roomnumber = ? " +
-                            "status = ? " +
+                            "roomnumber = ?, " +
+                            "status = ?, " +
+                            "dateOfDelete = ? " +
                             "WHERE pid = ?";
             preparedStatement = this.connection.prepareStatement(SQL);
             preparedStatement.setString(1, patient.getFirstName());
@@ -148,7 +158,8 @@ public class PatientDao extends DaoImp<Patient> {
             preparedStatement.setString(4, patient.getCareLevel());
             preparedStatement.setString(5, patient.getRoomNumber());
             preparedStatement.setBoolean(6, patient.getStatusBool());
-            preparedStatement.setLong(7, patient.getPid());
+            preparedStatement.setString(7,patient.getDateOfDelete().toString());
+            preparedStatement.setLong(8, patient.getPid());
         } catch (SQLException exception) {
             exception.printStackTrace();
         }
@@ -165,7 +176,7 @@ public class PatientDao extends DaoImp<Patient> {
     protected PreparedStatement getDeleteStatement(long pid) {
         PreparedStatement preparedStatement = null;
         try {
-            final String SQL = "DELETE FROM patient WHERE pid = ?";
+            final String SQL = "DELETE FROM patient_archive WHERE pid = ?";
             preparedStatement = this.connection.prepareStatement(SQL);
             preparedStatement.setLong(1, pid);
         } catch (SQLException exception) {
@@ -174,25 +185,25 @@ public class PatientDao extends DaoImp<Patient> {
         return preparedStatement;
     }
 
-    /**
-     * Creates a {@link PreparedStatement} for exporting a patient record by patient ID.
-     * <p>
-     * This method prepares an SQL query to select all columns from the "patient" table
-     * for the specified patient ID.
-     *
-     * @param pid the patient ID used to identify the patient record to export.
-     * @return a {@link PreparedStatement} configured to fetch the patient record by ID.
-     */
     @Override
     protected PreparedStatement getExportStatement(long pid) {
         PreparedStatement preparedStatement = null;
         try {
-            final String SQL = "SELECT * FROM patient WHERE pid = ?";
+            final String SQL = "SELECT * FROM patient_archive WHERE pid = ?";
             preparedStatement = this.connection.prepareStatement(SQL);
             preparedStatement.setLong(1, pid);
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return preparedStatement;
+    }
+
+    public void autoDeletionExpiredRecords() throws SQLException {
+        String sqlDelete = "DELETE FROM patient_archive WHERE dateOfDelete  <=  DATE ('now')";
+        try {
+            this.connection.prepareStatement(sqlDelete).execute();
+        } catch(SQLException exception){
+            exception.printStackTrace();
+        }
     }
 }

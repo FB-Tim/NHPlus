@@ -17,6 +17,8 @@ public class Patient extends Person {
     private final SimpleStringProperty careLevel;
     private final SimpleStringProperty roomNumber;
     private final List<Treatment> allTreatments = new ArrayList<>();
+    private boolean status;
+    private LocalDate delete_date;
 
     /**
      * Constructor to initiate an object of class <code>Patient</code> with the given parameter. Use this constructor
@@ -28,7 +30,7 @@ public class Patient extends Person {
      * @param careLevel Care level of the patient.
      * @param roomNumber Room number of the patient.
      */
-    public Patient(String firstName, String surname, LocalDate dateOfBirth, String careLevel, String roomNumber) {
+    public Patient(String firstName, String surname, LocalDate dateOfBirth, String careLevel, String roomNumber, boolean status) {
         super(firstName, surname);
         this.dateOfBirth = new SimpleStringProperty(DateConverter.convertLocalDateToString(dateOfBirth));
         this.careLevel = new SimpleStringProperty(careLevel);
@@ -46,12 +48,22 @@ public class Patient extends Person {
      * @param careLevel Care level of the patient.
      * @param roomNumber Room number of the patient.
      */
-    public Patient(long pid, String firstName, String surname, LocalDate dateOfBirth, String careLevel, String roomNumber) {
+    public Patient(long pid, String firstName, String surname, LocalDate dateOfBirth, String careLevel, String roomNumber, boolean status) {
         super(firstName, surname);
         this.pid = new SimpleLongProperty(pid);
         this.dateOfBirth = new SimpleStringProperty(DateConverter.convertLocalDateToString(dateOfBirth));
         this.careLevel = new SimpleStringProperty(careLevel);
         this.roomNumber = new SimpleStringProperty(roomNumber);
+        this.status = status;
+    }
+    public Patient(long pid, String firstName, String surname, LocalDate dateOfBirth, String careLevel, String roomNumber, boolean status, LocalDate delete_date) {
+        super(firstName, surname);
+        this.pid = new SimpleLongProperty(pid);
+        this.dateOfBirth = new SimpleStringProperty(DateConverter.convertLocalDateToString(dateOfBirth));
+        this.careLevel = new SimpleStringProperty(careLevel);
+        this.roomNumber = new SimpleStringProperty(roomNumber);
+        this.status = status;
+        this.delete_date = delete_date;
     }
 
     /**
@@ -82,6 +94,11 @@ public class Patient extends Person {
         return dateOfBirth.get();
     }
 
+    public LocalDate getDateOfDelete() {
+        return delete_date == null ? null : delete_date;
+    }
+
+
 
     /**
      * Returns the date of birth property.
@@ -91,6 +108,9 @@ public class Patient extends Person {
     public SimpleStringProperty dateOfBirthProperty() {
         return dateOfBirth;
     }
+
+    public void setDateOfDelete(LocalDate date) {this.delete_date = date;}
+
 
     /**
      * Stores the given string as new <code>birthOfDate</code>.
@@ -155,6 +175,16 @@ public class Patient extends Person {
         this.roomNumber.set(roomNumber);
     }
 
+    public String getStatus() {
+        return status ? "Archived" : "Active";
+    }
+    
+    public boolean getStatusBool() {
+        return status;
+    }
+
+    public void setStatus(boolean status) {this.status = status;}
+
     /**
      * Checks whether this person is an admin.
      * For patients, this is delegated to the superclass implementation.
@@ -193,6 +223,7 @@ public class Patient extends Person {
                 "\nBirthday: " + this.dateOfBirth +
                 "\nCarelevel: " + this.careLevel +
                 "\nRoomnumber: " + this.roomNumber +
+                "\nStatus: " + this.getStatus() +
                 "\n";
     }
 }

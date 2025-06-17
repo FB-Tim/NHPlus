@@ -57,6 +57,7 @@ public class NewTreatmentController {
      * @param patient    the patient for whom the treatment is being created
      */
     public void initialize(AllTreatmentController controller, Stage stage, Patient patient) {
+
         this.controller= controller;
         this.patient = patient;
         this.stage = stage;
@@ -64,6 +65,7 @@ public class NewTreatmentController {
         this.buttonAdd.setDisable(true);
         ChangeListener<String> inputNewPatientListener = (observableValue, oldText, newText) ->
                 NewTreatmentController.this.buttonAdd.setDisable(NewTreatmentController.this.areInputDataInvalid());
+
         this.textFieldBegin.textProperty().addListener(inputNewPatientListener);
         this.textFieldEnd.textProperty().addListener(inputNewPatientListener);
         this.textFieldDescription.textProperty().addListener(inputNewPatientListener);
@@ -103,7 +105,8 @@ public class NewTreatmentController {
         LocalTime end = DateConverter.convertStringToLocalTime(textFieldEnd.getText());
         String description = textFieldDescription.getText();
         String remarks = textAreaRemarks.getText();
-        Treatment treatment = new Treatment(patient.getPid(), date, begin, end, description, remarks);
+        boolean status = false;
+        Treatment treatment = new Treatment(patient.getPid(), date, begin, end, description, remarks, status); // "Status" zum Versuch
         createTreatment(treatment);
         controller.readAllAndShowInTableView();
         stage.close();
@@ -121,6 +124,7 @@ public class NewTreatmentController {
         } catch (SQLException exception) {
             exception.printStackTrace();
         }
+
     }
 
     /**
@@ -155,4 +159,5 @@ public class NewTreatmentController {
         }
         return this.textFieldDescription.getText().isBlank() || this.datePicker.getValue() == null;
     }
+
 }

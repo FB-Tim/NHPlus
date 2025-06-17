@@ -13,7 +13,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="500.0" prefWidth="855.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.hitec.nhplus.controller.AllTreatmentController" stylesheets="@Application.css">
+<AnchorPane prefHeight="500.0" prefWidth="855.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.hitec.nhplus.controller.AllArchivedTreatmentController" stylesheets="@Application.css">
     <children>
         <TableView fx:id="tableView" editable="true" layoutX="31.0" layoutY="35.0" onMouseClicked="#handleMouseClick" prefHeight="364.0" prefWidth="825.0" AnchorPane.bottomAnchor="75.0" AnchorPane.leftAnchor="15.0" AnchorPane.rightAnchor="15.0" AnchorPane.topAnchor="80.0">
             <columns>
@@ -24,6 +24,7 @@
                 <TableColumn fx:id="columnEnd" maxWidth="-1.0" minWidth="130.0" prefWidth="150.0" text="Ende"/>
                 <TableColumn fx:id="columnDescription" maxWidth="-1.0" minWidth="170.0" prefWidth="200.0" text="Kurzbeschreibung"/>
                 <TableColumn fx:id="columnStatus" maxWidth="-1.0" minWidth="130.0" prefWidth="140.0" text="Status"/>
+                <TableColumn fx:id="columnDeleteDate" prefWidth="75.0" text="Archiviert" />
             </columns>
             <columnResizePolicy>
                 <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
@@ -41,11 +42,6 @@
                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
                     </rowConstraints>
                     <children>
-                        <Button fx:id="buttonNewTreament" mnemonicParsing="false" onAction="#handleNewTreatment" prefWidth="200.0" text="neue Behandlung anlegen" GridPane.columnIndex="1"/>
-                        <ComboBox fx:id="comboBoxPatientSelection" minWidth="160.0" onAction="#handleComboBox" prefWidth="200.0"/>
-                        <Button fx:id="buttonDelete" mnemonicParsing="false" onAction="#handleDelete" prefWidth="200.0" text="Löschen" GridPane.columnIndex="2"/>
-                        <Button fx:id="buttonCompletion" mnemonicParsing="false" onAction="#handleCompletion" prefWidth="200.0" text="Archivieren" GridPane.columnIndex="3"/>
-                        <Button fx:id="buttonExport" mnemonicParsing="false" onAction="#handelExport" prefWidth="200.0" text="Export" GridPane.columnIndex="3"/>
                     </children>
                     <padding>
                         <Insets right="10.0"/>

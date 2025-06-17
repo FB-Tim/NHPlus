@@ -4,6 +4,7 @@ import de.hitec.nhplus.Main;
 import de.hitec.nhplus.datastorage.DaoFactory;
 import de.hitec.nhplus.datastorage.PatientDao;
 import de.hitec.nhplus.datastorage.TreatmentDao;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -23,6 +24,8 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+
+import static de.hitec.nhplus.model.Treatment.getStatusLabel;
 
 /**
  * Controller class for managing and displaying all treatments in a table view.
@@ -52,10 +55,16 @@ public class AllTreatmentController {
     private TableColumn<Treatment, String> columnDescription;
 
     @FXML
+    private TableColumn<Treatment, String> columnStatus;
+
+    @FXML
     private ComboBox<String> comboBoxPatientSelection;
 
     @FXML
     private Button buttonDelete;
+
+    @FXML
+    private Button buttonCompletion;
 
     @FXML
     private Button buttonExport;
@@ -80,19 +89,21 @@ public class AllTreatmentController {
         this.columnBegin.setCellValueFactory(new PropertyValueFactory<>("begin"));
         this.columnEnd.setCellValueFactory(new PropertyValueFactory<>("end"));
         this.columnDescription.setCellValueFactory(new PropertyValueFactory<>("description"));
+        this.columnStatus.setCellValueFactory(new PropertyValueFactory<>("status"));
         this.tableView.setItems(this.treatments);
 
         // Disabling the button to delete treatments as long, as no treatment was selected.
         this.buttonDelete.setDisable(true);
-        this.tableView.getSelectionModel().selectedItemProperty().addListener(
-                (observableValue, oldTreatment, newTreatment) ->
-                        AllTreatmentController.this.buttonDelete.setDisable(newTreatment == null));
+        this.buttonCompletion.setDisable(true);
 
-        this.buttonExport.setDisable(true);
         this.tableView.getSelectionModel().selectedItemProperty().addListener(
-                (observableValue, oldTreatment, newTreatment) ->
-                        AllTreatmentController.this.buttonExport.setDisable(newTreatment == null));
-
+                (observableValue, oldTreatment, newTreatment) -> {
+                    AllTreatmentController.this.buttonDelete.setDisable(newTreatment == null);
+                    AllTreatmentController.this.buttonCompletion.setDisable(newTreatment == null);
+                    AllTreatmentController.this.buttonExport.setDisable(newTreatment == null);
+                    this.buttonExport.setDisable(true);
+                }
+        );
         this.createComboBoxData();
     }
 
@@ -101,8 +112,8 @@ public class AllTreatmentController {
      * Also resets the combo box selection to "alle".
      */
     public void readAllAndShowInTableView() {
-        this.treatments.clear();
         comboBoxPatientSelection.getSelectionModel().select(0);
+        this.treatments.clear();
         this.dao = DaoFactory.getDaoFactory().createTreatmentDao();
         try {
             this.treatments.addAll(dao.readAll());
@@ -120,7 +131,7 @@ public class AllTreatmentController {
         try {
             patientList = (ArrayList<Patient>) dao.readAll();
             this.patientSelection.add("alle");
-            for (Patient patient: patientList) {
+            for (Patient patient : patientList) {
                 this.patientSelection.add(patient.getSurname());
             }
         } catch (SQLException exception) {
@@ -147,7 +158,7 @@ public class AllTreatmentController {
         }
 
         Patient patient = searchInList(selectedPatient);
-        if (patient !=null) {
+        if (patient != null) {
             try {
                 this.treatments.addAll(this.dao.readTreatmentsByPid(patient.getPid()));
             } catch (SQLException exception) {
@@ -192,12 +203,19 @@ public class AllTreatmentController {
      * If no patient is selected, an alert is shown.
      */
     @FXML
+    public void handleCompletion(){
+        int index = this.tableView.getSelectionModel().getSelectedIndex();
+        Treatment treatment = this.treatments.get(index);
+        CompletionTreatmentWindow(treatment);
+    }
+
+    @FXML
     public void handleNewTreatment() {
-        try{
+        try {
             String selectedPatient = this.comboBoxPatientSelection.getSelectionModel().getSelectedItem();
             Patient patient = searchInList(selectedPatient);
             newTreatmentWindow(patient);
-        } catch (NullPointerException exception){
+        } catch (NullPointerException exception) {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Information");
             alert.setHeaderText("Patient für die Behandlung fehlt!");
@@ -261,7 +279,6 @@ public class AllTreatmentController {
             AnchorPane pane = loader.load();
             Scene scene = new Scene(pane);
 
-            // the primary stage should stay in the background
             Stage stage = new Stage();
 
             NewTreatmentController controller = loader.getController();
@@ -275,21 +292,37 @@ public class AllTreatmentController {
         }
     }
 
-
     /**
      * Opens a modal window to view or edit the details of the selected treatment.
      *
      * @param treatment the treatment to view or edit
      */
-    public void treatmentWindow(Treatment treatment){
+    public void treatmentWindow(Treatment treatment) {
         try {
             FXMLLoader loader = new FXMLLoader(Main.class.getResource("/de/hitec/nhplus/TreatmentView.fxml"));
             AnchorPane pane = loader.load();
             Scene scene = new Scene(pane);
 
-            // the primary stage should stay in the background
             Stage stage = new Stage();
             TreatmentController controller = loader.getController();
+            controller.initializeController(this, stage, treatment);
+
+            stage.setScene(scene);
+            stage.setResizable(false);
+            stage.showAndWait();
+        } catch (IOException exception) {
+            exception.printStackTrace();
+        }
+    }
+
+    public void CompletionTreatmentWindow(Treatment treatment){
+        try {
+            FXMLLoader loader = new FXMLLoader(Main.class.getResource("/de/hitec/nhplus/CompletionTreatmentView.fxml"));
+            AnchorPane pane = loader.load();
+            Scene scene = new Scene(pane);
+
+            Stage stage = new Stage();
+            CompletionTreatmentController controller = loader.getController();
             controller.initializeController(this, stage, treatment);
 
             stage.setScene(scene);
