@@ -46,6 +46,8 @@
                   <TextField fx:id="textFieldDateOfBirth" minWidth="160.0" prefWidth="160.0" promptText="Geburtstag" GridPane.columnIndex="2" />
                   <TextField fx:id="textFieldCareLevel" prefHeight="26.0" prefWidth="200.0" promptText="Pflegegrad" GridPane.rowIndex="1" />
                   <TextField fx:id="textFieldRoomNumber" prefHeight="26.0" prefWidth="200.0" promptText="Raum" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                   <Button fx:id="buttonFullCompletion" mnemonicParsing="false" onAction="#handleCompletion" prefWidth="200.0" text="Archivieren" GridPane.columnIndex="2" GridPane.rowIndex="1" /> <!-- Der neue Button zur Abschließung der Behandlungen  -->
+
                </children>
                <padding>
                   <Insets right="10.0" />

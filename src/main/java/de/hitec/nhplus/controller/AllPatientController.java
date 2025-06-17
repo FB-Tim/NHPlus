@@ -1,12 +1,16 @@
 package de.hitec.nhplus.controller;
 
+import de.hitec.nhplus.Main;
 import de.hitec.nhplus.datastorage.DaoFactory;
 import de.hitec.nhplus.datastorage.PatientDao;
+import de.hitec.nhplus.model.Treatment;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -15,7 +19,10 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import de.hitec.nhplus.model.Patient;
 import de.hitec.nhplus.utils.DateConverter;
+import javafx.scene.layout.AnchorPane;
+import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDate;
 
@@ -67,8 +74,13 @@ public class AllPatientController {
     @FXML
     private TextField textFieldRoomNumber;
 
+
+    @FXML
+    private Button buttonFullCompletion;
+
     private final ObservableList<Patient> patients = FXCollections.observableArrayList();
     private PatientDao dao;
+
 
     /**
      * When <code>initialize()</code> gets called, all fields are already initialized. For example from the FXMLLoader
@@ -76,7 +88,17 @@ public class AllPatientController {
      * configured.
      */
     public void initialize() {
+
+
         this.readAllAndShowInTableView();
+
+        this.buttonFullCompletion.setDisable(true); // Deaktivierung des Buttons,
+
+        this.tableView.getSelectionModel().selectedItemProperty().addListener(
+                (observableValue, oldTreatment, newTreatment) -> {
+                    AllPatientController.this.buttonFullCompletion.setDisable(newTreatment == null); //damit zuerst die Behandlung ausgewählt werden kann
+                }
+        );
 
         this.columnId.setCellValueFactory(new PropertyValueFactory<>("pid"));
 
@@ -173,6 +195,32 @@ public class AllPatientController {
         this.doUpdate(event);
     }
 
+    @FXML
+    public void handleCompletion(){
+        int index = this.tableView.getSelectionModel().getSelectedIndex();
+        Patient patient = this.patients.get(index);
+        CompletionTreatmentWindow(patient);
+    }
+
+    public void CompletionTreatmentWindow(Patient patient){
+        try {
+            FXMLLoader loader = new FXMLLoader(Main.class.getResource("/de/hitec/nhplus/CompletionPatientView.fxml"));
+            AnchorPane pane = loader.load();
+            Scene scene = new Scene(pane);
+
+            // the primary stage should stay in the background
+            Stage stage = new Stage();
+            CompletionPatientController controller = loader.getController();
+            controller.initializeController(this, stage, patient);
+
+            stage.setScene(scene);
+            stage.setResizable(false);
+            stage.showAndWait();
+        } catch (IOException exception) {
+            exception.printStackTrace();
+        }
+    }
+
     /**
      * Updates a patient by calling the method <code>update()</code> of {@link PatientDao}.
      *
@@ -190,7 +238,7 @@ public class AllPatientController {
      * Reloads all patients to the table by clearing the list of all patients and filling it again by all persisted
      * patients, delivered by {@link PatientDao}.
      */
-    private void readAllAndShowInTableView() {
+    public void readAllAndShowInTableView() {
         this.patients.clear();
         this.dao = DaoFactory.getDaoFactory().createPatientDAO();
         try {

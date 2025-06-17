@@ -30,10 +30,12 @@ public class SetUpDB {
         SetUpDB.setUpTablePatient(connection);
         SetUpDB.setUpTableNurse(connection);
         SetUpDB.setUpTableArchive(connection);
+        SetUpDB.setUpTableArchivePatient(connection);
         SetUpDB.setUpTableTreatment(connection);
         SetUpDB.setUpPatients();
         SetUpDB.setUpNurses();
         SetUpDB.setUpArchive();
+        SetUpDB.setUpArchivePatient();
         SetUpDB.setUpTreatments();
 
     }
@@ -98,6 +100,45 @@ public class SetUpDB {
             statement.execute(SQL);
         } catch (SQLException exception) {
             System.out.println(exception.getMessage());
+        }
+    }
+
+    private static void setUpTableArchivePatient(Connection connection) {
+        final String SQL = "CREATE TABLE IF NOT EXISTS patient (" +
+                "   pid INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                "   firstname TEXT NOT NULL, " +
+                "   surname TEXT NOT NULL, " +
+                "   dateOfBirth TEXT NOT NULL, " +
+                "   carelevel TEXT NOT NULL, " +
+                "   roomnumber TEXT NOT NULL, " +
+                "  dateOfDelete TEXT" +
+                ")";
+        final  String TRIGGER_SQL = """
+        CREATE TRIGGER IF NOT EXISTS prevent_archive_changes
+        BEFORE UPDATE ON archive
+        FOR EACH ROW
+        BEGIN
+            SELECT RAISE(ABORT, 'Archivierte Daten sind unveränderlich');
+        END;
+    """;
+        try (Statement statement = connection.createStatement()) {
+            statement.execute(SQL);
+            statement.execute(TRIGGER_SQL);
+        } catch (SQLException exception) {
+            System.out.println(exception.getMessage());
+        }
+        try (Statement statement = connection.createStatement()) {
+            statement.execute(SQL);
+        } catch (SQLException exception) {
+            System.out.println(exception.getMessage());
+        }
+    }
+
+    private static void setUpArchivePatient() {
+        try {
+            ArchivePatientDao dao = DaoFactory.getDaoFactory().createArchivePatientDao();
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
     }
 

@@ -17,6 +17,7 @@ public class Patient extends Person {
     private final SimpleStringProperty careLevel;
     private final SimpleStringProperty roomNumber;
     private final List<Treatment> allTreatments = new ArrayList<>();
+    private LocalDate delete_date;
 
     /**
      * Constructor to initiate an object of class <code>Patient</code> with the given parameter. Use this constructor
@@ -53,6 +54,14 @@ public class Patient extends Person {
         this.careLevel = new SimpleStringProperty(careLevel);
         this.roomNumber = new SimpleStringProperty(roomNumber);
     }
+    public Patient(long pid, String firstName, String surname, LocalDate dateOfBirth, String careLevel, String roomNumber, LocalDate delete_date) {
+        super(firstName, surname);
+        this.pid = new SimpleLongProperty(pid);
+        this.dateOfBirth = new SimpleStringProperty(DateConverter.convertLocalDateToString(dateOfBirth));
+        this.careLevel = new SimpleStringProperty(careLevel);
+        this.roomNumber = new SimpleStringProperty(roomNumber);
+        this.delete_date = delete_date;
+    }
 
     public long getPid() {
         return pid.get();
@@ -66,9 +75,17 @@ public class Patient extends Person {
         return dateOfBirth.get();
     }
 
+    public LocalDate getDateOfDelete() {
+        return delete_date == null ? null : delete_date;
+    }
+
+
     public SimpleStringProperty dateOfBirthProperty() {
         return dateOfBirth;
     }
+
+    public void setDateOfDelete(LocalDate date) {this.delete_date = date;}
+
 
     /**
      * Stores the given string as new <code>birthOfDate</code>.

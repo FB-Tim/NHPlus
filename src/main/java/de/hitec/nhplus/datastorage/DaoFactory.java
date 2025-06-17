@@ -22,6 +22,11 @@ public class DaoFactory {
         return new ArchiveDao(ConnectionBuilder.getConnection());
     }
 
+    public ArchivePatientDao createArchivePatientDao() {
+        return new ArchivePatientDao(ConnectionBuilder.getConnection());
+    }
+
+
     public PatientDao createPatientDAO() {
         return new PatientDao(ConnectionBuilder.getConnection());
     }
