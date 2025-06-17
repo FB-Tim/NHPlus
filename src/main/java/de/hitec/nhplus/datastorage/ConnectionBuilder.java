@@ -27,8 +27,8 @@ public class ConnectionBuilder {
                 configuration.enforceForeignKeys(true);
                 
                 configuration.setPragma(SQLiteConfig.Pragma.KEY, DB_PASSWORD);
-                
-                Connection conn = DriverManager.getConnection(URL, configuration.toProperties());
+
+                ConnectionBuilder.connection = DriverManager.getConnection(URL, configuration.toProperties());
             }
         } catch (SQLException exception) {
             System.out.println("Verbindung zur Datenbank konnte nicht aufgebaut werden!");
