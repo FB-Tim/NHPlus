@@ -128,20 +128,12 @@ public class Treatment {
         return end.toString();
     }
 
-    public String getDescription() {
-        return description;
-    }
-
     public String getStatus() {
         return status ? "Archived" : "Active";
     }
     
     public boolean getStatusBool() {
         return status;
-    }
-
-    public String getRemarks() {
-        return remarks;
     }
 
     public String getComment() {return comment;}
