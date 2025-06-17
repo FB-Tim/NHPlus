@@ -1,11 +1,14 @@
 package de.hitec.nhplus.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import de.hitec.nhplus.datastorage.DaoFactory;
 import de.hitec.nhplus.datastorage.PatientDao;
+import de.hitec.nhplus.model.Treatment;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
@@ -15,7 +18,10 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import de.hitec.nhplus.model.Patient;
 import de.hitec.nhplus.utils.DateConverter;
+import javafx.stage.FileChooser;
 
+import java.io.File;
+import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDate;
 
@@ -66,6 +72,8 @@ public class AllPatientController {
 
     @FXML
     private TextField textFieldRoomNumber;
+    @FXML
+    private Button buttonExport;
 
     private final ObservableList<Patient> patients = FXCollections.observableArrayList();
     private PatientDao dao;
@@ -263,5 +271,30 @@ public class AllPatientController {
         return !this.textFieldFirstName.getText().isBlank() && !this.textFieldSurname.getText().isBlank() &&
                 !this.textFieldDateOfBirth.getText().isBlank() && !this.textFieldCareLevel.getText().isBlank() &&
                 !this.textFieldRoomNumber.getText().isBlank();
+    }
+
+    @FXML
+    public void handelExport() {
+        Patient selectedTreatment = tableView.getSelectionModel().getSelectedItem();
+        if (selectedTreatment == null) {
+            System.out.println("Bitte wählen Sie eine Behandlung aus.");
+            return;
+        }
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Behandlung als JSON exportieren");
+        fileChooser.setInitialFileName("behandlung_" + selectedTreatment.getPid() + ".json");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("JSON-Dateien", "*.json"));
+        File file = fileChooser.showSaveDialog(buttonExport.getScene().getWindow());
+
+        if (file != null) {
+            ObjectMapper mapper = new ObjectMapper();
+            try {
+                mapper.writerWithDefaultPrettyPrinter().writeValue(file, selectedTreatment);
+                System.out.println("Export erfolgreich: " + file.getAbsolutePath());
+            } catch (IOException e) {
+                System.err.println("Fehler beim Exportieren: " + e.getMessage());
+            }
+        }
     }
 }
