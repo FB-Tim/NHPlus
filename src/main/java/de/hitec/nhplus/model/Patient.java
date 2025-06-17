@@ -17,6 +17,7 @@ public class Patient extends Person {
     private final SimpleStringProperty careLevel;
     private final SimpleStringProperty roomNumber;
     private final List<Treatment> allTreatments = new ArrayList<>();
+    private boolean status;
     private LocalDate delete_date;
 
     /**
@@ -29,7 +30,7 @@ public class Patient extends Person {
      * @param careLevel Care level of the patient.
      * @param roomNumber Room number of the patient.
      */
-    public Patient(String firstName, String surname, LocalDate dateOfBirth, String careLevel, String roomNumber) {
+    public Patient(String firstName, String surname, LocalDate dateOfBirth, String careLevel, String roomNumber, boolean status) {
         super(firstName, surname);
         this.dateOfBirth = new SimpleStringProperty(DateConverter.convertLocalDateToString(dateOfBirth));
         this.careLevel = new SimpleStringProperty(careLevel);
@@ -47,19 +48,21 @@ public class Patient extends Person {
      * @param careLevel Care level of the patient.
      * @param roomNumber Room number of the patient.
      */
-    public Patient(long pid, String firstName, String surname, LocalDate dateOfBirth, String careLevel, String roomNumber) {
+    public Patient(long pid, String firstName, String surname, LocalDate dateOfBirth, String careLevel, String roomNumber, boolean status) {
         super(firstName, surname);
         this.pid = new SimpleLongProperty(pid);
         this.dateOfBirth = new SimpleStringProperty(DateConverter.convertLocalDateToString(dateOfBirth));
         this.careLevel = new SimpleStringProperty(careLevel);
         this.roomNumber = new SimpleStringProperty(roomNumber);
+        this.status = status;
     }
-    public Patient(long pid, String firstName, String surname, LocalDate dateOfBirth, String careLevel, String roomNumber, LocalDate delete_date) {
+    public Patient(long pid, String firstName, String surname, LocalDate dateOfBirth, String careLevel, String roomNumber, boolean status, LocalDate delete_date) {
         super(firstName, surname);
         this.pid = new SimpleLongProperty(pid);
         this.dateOfBirth = new SimpleStringProperty(DateConverter.convertLocalDateToString(dateOfBirth));
         this.careLevel = new SimpleStringProperty(careLevel);
         this.roomNumber = new SimpleStringProperty(roomNumber);
+        this.status = status;
         this.delete_date = delete_date;
     }
 
@@ -121,6 +124,16 @@ public class Patient extends Person {
         this.roomNumber.set(roomNumber);
     }
 
+    public String getStatus() {
+        return status ? "Archived" : "Active";
+    }
+    
+    public boolean getStatusBool() {
+        return status;
+    }
+
+    public void setStatus(boolean status) {this.status = status;}
+
     @Override
     public boolean isAdmin() {
         return super.isAdmin();
@@ -147,6 +160,7 @@ public class Patient extends Person {
                 "\nBirthday: " + this.dateOfBirth +
                 "\nCarelevel: " + this.careLevel +
                 "\nRoomnumber: " + this.roomNumber +
+                "\nStatus: " + this.getStatus() +
                 "\n";
     }
 }

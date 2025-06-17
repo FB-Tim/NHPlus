@@ -18,8 +18,8 @@ public class DaoFactory {
         return new TreatmentDao(ConnectionBuilder.getConnection());
     }
 
-    public ArchiveDao createArchiveDao() {
-        return new ArchiveDao(ConnectionBuilder.getConnection());
+    public TreatmentArchiveDao createTreatmentArchiveDao() {
+        return new TreatmentArchiveDao(ConnectionBuilder.getConnection());
     }
 
     public ArchivePatientDao createArchivePatientDao() {

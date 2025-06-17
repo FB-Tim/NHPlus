@@ -72,7 +72,7 @@
                 <Label fx:id="labelCareLevel" text="Pflegestufe" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                 <Label fx:id="labelDateOfBirth" text="" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                 <fx:define><ToggleGroup fx:id="myGroup"/> </fx:define>
-                <RadioButton fx:id="CheckBoxLeave" text ="verlsassen" GridPane.columnIndex="2" GridPane.rowIndex="1" toggleGroup="$myGroup"/>
+                <RadioButton fx:id="CheckBoxLeave" text ="verlassen" GridPane.columnIndex="2" GridPane.rowIndex="1" toggleGroup="$myGroup"/>
                 <RadioButton fx:id="CheckBoxDead" text ="gestorben" GridPane.columnIndex="3" GridPane.rowIndex="1" toggleGroup="$myGroup"/>
                 <DatePicker fx:id="dateOfDelete" prefWidth="192.0" promptText="yyyy-mm-dd" GridPane.columnIndex="3" GridPane.rowIndex="4" />
 

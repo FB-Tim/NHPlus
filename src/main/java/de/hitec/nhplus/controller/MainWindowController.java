@@ -44,8 +44,28 @@ public class MainWindowController {
     }
 
     @FXML
+    private void handleShowAllArchivedPatient(ActionEvent event) {
+        FXMLLoader loader = new FXMLLoader(Main.class.getResource("/de/hitec/nhplus/AllArchivedPatientView.fxml"));
+        try {
+            mainBorderPane.setCenter(loader.load());
+        } catch (IOException exception) {
+            exception.printStackTrace();
+        }
+    }
+
+    @FXML
     private void handleShowAllTreatments(ActionEvent event) {
         FXMLLoader loader = new FXMLLoader(Main.class.getResource("/de/hitec/nhplus/AllTreatmentView.fxml"));
+        try {
+            mainBorderPane.setCenter(loader.load());
+        } catch (IOException exception) {
+            exception.printStackTrace();
+        }
+    }
+    
+    @FXML
+    private void handleShowAllArchivedTreatments(ActionEvent event) {
+        FXMLLoader loader = new FXMLLoader(Main.class.getResource("/de/hitec/nhplus/AllArchivedTreatmentView.fxml"));
         try {
             mainBorderPane.setCenter(loader.load());
         } catch (IOException exception) {

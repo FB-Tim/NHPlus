@@ -32,15 +32,15 @@ public class SetUpDB {
         SetUpDB.wipeDb(connection);
         SetUpDB.setUpTablePatient(connection);
         SetUpDB.setUpTableNurse(connection);
-        SetUpDB.setUpTableArchive(connection);
-        SetUpDB.setUpTableArchivePatient(connection);
+        SetUpDB.setUpTableTreatmentArchive(connection);
+        SetUpDB.setUpTablePatientArchive(connection);
         SetUpDB.setUpTableTreatment(connection);
         SetUpDB.setUpTableAdmin(connection);
         SetUpDB.setUpPatients();
         SetUpDB.setUpNurses();
         SetUpDB.setUpAdmins();
-        SetUpDB.setUpArchive();
-        SetUpDB.setUpArchivePatient();
+        SetUpDB.setUpTreatmentArchive();
+        SetUpDB.setUpPatientArchive();
         SetUpDB.setUpTreatments();
 
     }
@@ -54,7 +54,7 @@ public class SetUpDB {
             statement.execute("DROP TABLE nurse");
             statement.execute("DROP TABLE treatment");
             statement.execute("DROP TABLE admin");
-            statement.execute("DROP TABLE archive");
+            statement.execute("DROP TABLE treatment_archive");
             statement.execute("DROP TABLE patient_archive");
         } catch (SQLException exception) {
             System.out.println(exception.getMessage());
@@ -68,7 +68,8 @@ public class SetUpDB {
                 "   surname TEXT NOT NULL, " +
                 "   dateOfBirth TEXT NOT NULL, " +
                 "   carelevel TEXT NOT NULL, " +
-                "   roomnumber TEXT NOT NULL " +
+                "   roomnumber TEXT NOT NULL, " +
+                "   status INTEGER NOT NULL " +
                 ");";
         try (Statement statement = connection.createStatement()) {
             statement.execute(SQL);
@@ -115,7 +116,7 @@ public class SetUpDB {
                 "   end TEXT NOT NULL, " +
                 "   description TEXT NOT NULL, " +
                 "   remark TEXT NOT NULL," +
-                "   status TEXT NOT NULL, " +
+                "   status INTEGER NOT NULL, " +
                 "   FOREIGN KEY (pid) REFERENCES patient (pid) ON DELETE CASCADE " +
                 ");";
         try (Statement statement = connection.createStatement()) {
@@ -125,48 +126,9 @@ public class SetUpDB {
         }
     }
 
-    private static void setUpTableArchivePatient(Connection connection) {
-        final String SQL = "CREATE TABLE IF NOT EXISTS patient_archive (" +
-                "   pid INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                "   firstname TEXT NOT NULL, " +
-                "   surname TEXT NOT NULL, " +
-                "   dateOfBirth TEXT NOT NULL, " +
-                "   carelevel TEXT NOT NULL, " +
-                "   roomnumber TEXT NOT NULL, " +
-                "  dateOfDelete TEXT" +
-                ")";
-        final  String TRIGGER_SQL = """
-        CREATE TRIGGER IF NOT EXISTS prevent_archive_changes
-        BEFORE UPDATE ON archive
-        FOR EACH ROW
-        BEGIN
-            SELECT RAISE(ABORT, 'Archivierte Daten sind unveränderlich');
-        END;
-    """;
-        try (Statement statement = connection.createStatement()) {
-            statement.execute(SQL);
-            statement.execute(TRIGGER_SQL);
-        } catch (SQLException exception) {
-            System.out.println(exception.getMessage());
-        }
-        try (Statement statement = connection.createStatement()) {
-            statement.execute(SQL);
-        } catch (SQLException exception) {
-            System.out.println(exception.getMessage());
-        }
-    }
-
-    private static void setUpArchivePatient() {
-        try {
-            ArchivePatientDao dao = DaoFactory.getDaoFactory().createArchivePatientDao();
-        } catch (Exception exception) {
-            exception.printStackTrace();
-        }
-    }
-
-    private static void setUpTableArchive(Connection connection) {
+    private static void setUpTableTreatmentArchive(Connection connection) {
         final String SQL = """
-        CREATE TABLE IF NOT EXISTS archive (
+        CREATE TABLE IF NOT EXISTS treatment_archive (
             tid INTEGER PRIMARY KEY AUTOINCREMENT,
             pid INTEGER NOT NULL,
             treatment_date TEXT NOT NULL,
@@ -174,7 +136,7 @@ public class SetUpDB {
             end TEXT NOT NULL,
             description TEXT NOT NULL,
             remark TEXT NOT NULL,
-            status TEXT NOT NULL,
+            status INTEGER NOT NULL,
             delete_date TEXT,
             comment TEXT NOT NULL,
             FOREIGN KEY (pid) REFERENCES patient (pid) ON DELETE CASCADE
@@ -182,7 +144,7 @@ public class SetUpDB {
     """;
         final String TRIGGER_SQL = """
         CREATE TRIGGER IF NOT EXISTS prevent_archive_changes
-        BEFORE UPDATE ON archive
+        BEFORE UPDATE ON treatment_archive
         FOR EACH ROW
         BEGIN
             SELECT RAISE(ABORT, 'Archivierte Daten sind unveränderlich');
@@ -197,24 +159,47 @@ public class SetUpDB {
         }
     }
 
-    private static void setUpArchive() {
-        try {
-            ArchiveDao dao = DaoFactory.getDaoFactory().createArchiveDao();
-        } catch (Exception exception) {
-            exception.printStackTrace();
+    private static void setUpTablePatientArchive(Connection connection) {
+        final String SQL = "CREATE TABLE IF NOT EXISTS patient_archive (" +
+                "   pid INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                "   firstname TEXT NOT NULL, " +
+                "   surname TEXT NOT NULL, " +
+                "   dateOfBirth TEXT NOT NULL, " +
+                "   carelevel TEXT NOT NULL, " +
+                "   roomnumber TEXT NOT NULL, " +
+                "   status INTEGER NOT NULL, " +
+                "  dateOfDelete TEXT" +
+                ")";
+        final  String TRIGGER_SQL = """
+        CREATE TRIGGER IF NOT EXISTS prevent_archive_changes
+        BEFORE UPDATE ON patient_archive
+        FOR EACH ROW
+        BEGIN
+            SELECT RAISE(ABORT, 'Archivierte Daten sind unveränderlich');
+        END;
+    """;
+        try (Statement statement = connection.createStatement()) {
+            statement.execute(SQL);
+            statement.execute(TRIGGER_SQL);
+        } catch (SQLException exception) {
+            System.out.println(exception.getMessage());
+        }
+        try (Statement statement = connection.createStatement()) {
+            statement.execute(SQL);
+        } catch (SQLException exception) {
+            System.out.println(exception.getMessage());
         }
     }
-
 
     private static void setUpPatients() {
         try {
             PatientDao dao = DaoFactory.getDaoFactory().createPatientDAO();
-            dao.create(new Patient("Seppl", "Herberger", convertStringToLocalDate("1945-12-01"), "4", "202" ));
-            dao.create(new Patient("Martina", "Gerdsen", convertStringToLocalDate("1954-08-12"), "5", "010"));
-            dao.create(new Patient("Gertrud", "Franzen", convertStringToLocalDate("1949-04-16"), "3", "002"));
-            dao.create(new Patient("Ahmet", "Yilmaz", convertStringToLocalDate("1941-02-22"), "3", "013"));
-            dao.create(new Patient("Hans", "Neumann", convertStringToLocalDate("1955-12-12"), "2", "001"));
-            dao.create(new Patient("Elisabeth", "Müller", convertStringToLocalDate("1958-03-07"), "5", "110"));
+            dao.create(new Patient("Seppl", "Herberger", convertStringToLocalDate("1945-12-01"), "4", "202", true));
+            dao.create(new Patient("Martina", "Gerdsen", convertStringToLocalDate("1954-08-12"), "5", "010", true));
+            dao.create(new Patient("Gertrud", "Franzen", convertStringToLocalDate("1949-04-16"), "3", "002", true));
+            dao.create(new Patient("Ahmet", "Yilmaz", convertStringToLocalDate("1941-02-22"), "3", "013", true));
+            dao.create(new Patient("Hans", "Neumann", convertStringToLocalDate("1955-12-12"), "2", "001", true));
+            dao.create(new Patient("Elisabeth", "Müller", convertStringToLocalDate("1958-03-07"), "5", "110", true));
         } catch (SQLException exception) {
             exception.printStackTrace();
         }
@@ -258,6 +243,24 @@ public class SetUpDB {
             dao.create(new Treatment(9, 6, convertStringToLocalDate("2023-08-31"), convertStringToLocalTime("13:30"), convertStringToLocalTime("13:45"), "Toilettengang", "Hilfe beim Toilettengang; Patientin klagt über Schmerzen beim Stuhlgang. Gabe von Iberogast", false));
             dao.create(new Treatment(10, 6, convertStringToLocalDate("2023-09-01"), convertStringToLocalTime("16:00"), convertStringToLocalTime("17:00"), "KG", "Massage der Extremitäten zur Verbesserung der Durchblutung", false));
         } catch (SQLException exception) {
+            exception.printStackTrace();
+        }
+    }
+
+    private static void setUpTreatmentArchive() {
+        try {
+            TreatmentArchiveDao dao = DaoFactory.getDaoFactory().createTreatmentArchiveDao();
+            dao.create(new Treatment(11, 2, convertStringToLocalDate("2023-04-09"), convertStringToLocalTime("11:00"), convertStringToLocalTime("11:30"), "Waschen", "Waschen per Dusche auf einem Stuhl; Patientin gewendet;", false, convertStringToLocalDate("2023-06-09"), ""));
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
+    }
+
+    private static void setUpPatientArchive() {
+        try {
+            ArchivePatientDao dao = DaoFactory.getDaoFactory().createArchivePatientDao();
+            dao.create(new Patient(1, "Seppl", "Herberger", convertStringToLocalDate("1945-12-01"), "4", "202", true, convertStringToLocalDate("2023-09-01")));
+        } catch (Exception exception) {
             exception.printStackTrace();
         }
     }

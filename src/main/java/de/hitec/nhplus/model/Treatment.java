@@ -13,7 +13,7 @@ public class Treatment {
     private LocalTime end;
     private String description;
     private String remarks;
-    private boolean status;  // der Parameter für abgeschloßene Behandlungen
+    private boolean status;
     private LocalDate delete_date;
     private String comment;
 
@@ -108,6 +108,10 @@ public class Treatment {
 
     public String getStatus() {
         return status ? "Archived" : "Active";
+    }
+    
+    public boolean getStatusBool() {
+        return status;
     }
 
     public String getRemarks() {

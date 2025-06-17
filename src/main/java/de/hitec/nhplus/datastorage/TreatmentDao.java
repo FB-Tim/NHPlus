@@ -43,7 +43,7 @@ public class TreatmentDao extends DaoImp<Treatment> {
             preparedStatement.setString(4, treatment.getEnd());
             preparedStatement.setString(5, treatment.getDescription());
             preparedStatement.setString(6, treatment.getRemarks());
-            preparedStatement.setString(7, treatment.getStatus()); // Status mit 7
+            preparedStatement.setBoolean(7, treatment.getStatusBool());
         } catch (SQLException exception) {
             exception.printStackTrace();
         }
@@ -81,7 +81,7 @@ public class TreatmentDao extends DaoImp<Treatment> {
         LocalTime begin = DateConverter.convertStringToLocalTime(result.getString(4));
         LocalTime end = DateConverter.convertStringToLocalTime(result.getString(5));
         return new Treatment(result.getLong(1), result.getLong(2),
-                date, begin, end, result.getString(6), result.getString(7), result.getBoolean(8)); //Hier wurde auch der Status hinzugefügt
+                date, begin, end, result.getString(6), result.getString(7), result.getBoolean(8));
     }
 
     /**
@@ -182,7 +182,7 @@ public class TreatmentDao extends DaoImp<Treatment> {
             preparedStatement.setString(4, treatment.getEnd());
             preparedStatement.setString(5, treatment.getDescription());
             preparedStatement.setString(6, treatment.getRemarks());
-            preparedStatement.setString(7, treatment.getStatus()); // Status mit 7
+            preparedStatement.setBoolean(7, treatment.getStatusBool()); // Status mit 7
             preparedStatement.setLong(8, treatment.getTid());
         } catch (SQLException exception) {
             exception.printStackTrace();

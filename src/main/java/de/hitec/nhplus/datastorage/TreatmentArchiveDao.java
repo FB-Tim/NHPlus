@@ -12,9 +12,9 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ArchiveDao extends DaoImp<Treatment> {
+public class TreatmentArchiveDao extends DaoImp<Treatment> {
 
-    public ArchiveDao(Connection connection) {
+    public TreatmentArchiveDao(Connection connection) {
         super(connection);
     }
 
@@ -22,7 +22,7 @@ public class ArchiveDao extends DaoImp<Treatment> {
     protected PreparedStatement getCreateStatement(Treatment treatment) {
         PreparedStatement preparedStatement = null;
         try {
-            final String SQL = "INSERT INTO archive (tid, pid, treatment_date, begin, end, description, remark, status, delete_date, comment) " + //Hier wurde auch der Status hinzugefügt
+            final String SQL = "INSERT INTO treatment_archive (tid, pid, treatment_date, begin, end, description, remark, status, delete_date, comment) " +
                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             preparedStatement = this.connection.prepareStatement(SQL);
             preparedStatement.setLong(1, treatment.getTid());
@@ -32,7 +32,7 @@ public class ArchiveDao extends DaoImp<Treatment> {
             preparedStatement.setString(5, treatment.getEnd());
             preparedStatement.setString(6, treatment.getDescription());
             preparedStatement.setString(7, treatment.getRemarks());
-            preparedStatement.setString(8, treatment.getStatus());
+            preparedStatement.setBoolean(8, treatment.getStatusBool());
             if (treatment.getDateOfDelete() == null) {
                 preparedStatement.setString(9, null);
             } else {
@@ -50,7 +50,7 @@ public class ArchiveDao extends DaoImp<Treatment> {
     protected PreparedStatement getReadByIDStatement(long tid) {
         PreparedStatement preparedStatement = null;
         try {
-            final String SQL = "SELECT * FROM archive WHERE tid = ?";
+            final String SQL = "SELECT * FROM treatment_archive WHERE tid = ?";
             preparedStatement = this.connection.prepareStatement(SQL);
             preparedStatement.setLong(1, tid);
         } catch (SQLException exception) {
@@ -68,7 +68,7 @@ public class ArchiveDao extends DaoImp<Treatment> {
         String deleteStr = result.getString(9);
         LocalDate delete = deleteStr == null ? null : DateConverter.convertStringToLocalDate(deleteStr);
         return new Treatment(result.getLong(1), result.getLong(2),
-                date, begin, end, result.getString(6), result.getString(7), result.getBoolean(8), delete, result.getString(10)); //Hier wurde auch der Status hinzugefügt
+                date, begin, end, result.getString(6), result.getString(7), result.getBoolean(8), delete, result.getString(10));
     }
 
 
@@ -76,7 +76,7 @@ public class ArchiveDao extends DaoImp<Treatment> {
     protected PreparedStatement getReadAllStatement() {
         PreparedStatement statement = null;
         try {
-            final String SQL = "SELECT * FROM archive";
+            final String SQL = "SELECT * FROM treatment_archive";
             statement = this.connection.prepareStatement(SQL);
         } catch (SQLException exception) {
             exception.printStackTrace();
@@ -95,7 +95,7 @@ public class ArchiveDao extends DaoImp<Treatment> {
             String deleteStr = result.getString(9);
             LocalDate delete = deleteStr == null ? null : DateConverter.convertStringToLocalDate(deleteStr);
             Treatment treatment = new Treatment(result.getLong(1), result.getLong(2),
-                    date, begin, end, result.getString(6), result.getString(7), result.getBoolean(8), delete, result.getString(10)); //Hier wurde auch der Status hinzugefügt
+                    date, begin, end, result.getString(6), result.getString(7), result.getBoolean(8), delete, result.getString(10));
             list.add(treatment);
         }
         return list;
@@ -105,7 +105,7 @@ public class ArchiveDao extends DaoImp<Treatment> {
     private PreparedStatement getReadAllTreatmentsOfOnePatientByPid(long pid) {
         PreparedStatement preparedStatement = null;
         try {
-            final String SQL = "SELECT * FROM archive WHERE pid = ?";
+            final String SQL = "SELECT * FROM treatment_archive WHERE pid = ?";
             preparedStatement = this.connection.prepareStatement(SQL);
             preparedStatement.setLong(1, pid);
         } catch (SQLException exception) {
@@ -124,7 +124,7 @@ public class ArchiveDao extends DaoImp<Treatment> {
         PreparedStatement preparedStatement = null;
         try {
             final String SQL =
-                    "UPDATE archive SET " +
+                    "UPDATE treatment_archive SET " +
                             "pid = ?, " +
                             "treatment_date = ?, " +
                             "begin = ?, " +
@@ -142,8 +142,8 @@ public class ArchiveDao extends DaoImp<Treatment> {
             preparedStatement.setString(4, treatment.getEnd());
             preparedStatement.setString(5, treatment.getDescription());
             preparedStatement.setString(6, treatment.getRemarks());
-            preparedStatement.setString(7, treatment.getStatus()); // Status mit 7
-            preparedStatement.setString(8, treatment.getDateOfDelete().toString()); // Date of Delete
+            preparedStatement.setBoolean(7, treatment.getStatusBool());
+            preparedStatement.setString(8, treatment.getDateOfDelete().toString());
             preparedStatement.setString(9, treatment.getComment());
             preparedStatement.setLong(10, treatment.getTid());
         } catch (SQLException exception) {
@@ -156,7 +156,21 @@ public class ArchiveDao extends DaoImp<Treatment> {
     protected PreparedStatement getDeleteStatement(long tid) {
         PreparedStatement preparedStatement = null;
         try {
-            final String SQL = "DELETE FROM archive WHERE tid = ?";
+            final String SQL = "DELETE FROM treatment_archive WHERE tid = ?";
+            preparedStatement = this.connection.prepareStatement(SQL);
+            preparedStatement.setLong(1, tid);
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+        }
+        return preparedStatement;
+    }
+
+    @Override
+    protected PreparedStatement getExportStatement(long tid) {
+        PreparedStatement preparedStatement = null;
+        try {
+            final String SQL =
+                    "Select * FROM treatment_archive WHERE tid = ?";
             preparedStatement = this.connection.prepareStatement(SQL);
             preparedStatement.setLong(1, tid);
         } catch (SQLException exception) {
@@ -166,7 +180,7 @@ public class ArchiveDao extends DaoImp<Treatment> {
     }
 
     public void autoDeletionExpiredRecords() throws SQLException {
-        String sqlDelete = "DELETE FROM archive WHERE delete_date <=  DATE ('now')";
+        String sqlDelete = "DELETE FROM treatment_archive WHERE delete_date <=  DATE ('now')";
         try {
             this.connection.prepareStatement(sqlDelete).execute();
     } catch(SQLException exception){

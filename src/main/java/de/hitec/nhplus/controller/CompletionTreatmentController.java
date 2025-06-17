@@ -1,6 +1,6 @@
 package de.hitec.nhplus.controller;
 
-import de.hitec.nhplus.datastorage.ArchiveDao;
+import de.hitec.nhplus.datastorage.TreatmentArchiveDao;
 import de.hitec.nhplus.datastorage.DaoFactory;
 import de.hitec.nhplus.datastorage.PatientDao;
 import de.hitec.nhplus.datastorage.TreatmentDao;
@@ -104,11 +104,11 @@ public class CompletionTreatmentController {
 
     private void archiveTreatment(Treatment treatment) {
         this.treatments.remove(treatment);
-        ArchiveDao archiveDao = DaoFactory.getDaoFactory().createArchiveDao();
+        TreatmentArchiveDao treatmentArchiveDao = DaoFactory.getDaoFactory().createTreatmentArchiveDao();
         TreatmentDao tDao = DaoFactory.getDaoFactory().createTreatmentDao();
         try {
-            archiveDao.create(treatment);
-            archiveDao.autoDeletionExpiredRecords();
+            treatmentArchiveDao.create(treatment);
+            treatmentArchiveDao.autoDeletionExpiredRecords();
             tDao.deleteById(treatment.getTid());
         } catch (SQLException exception) {
             exception.printStackTrace();

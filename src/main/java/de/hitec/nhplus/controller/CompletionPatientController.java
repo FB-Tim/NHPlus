@@ -9,7 +9,6 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 import de.hitec.nhplus.model.Patient;
-import de.hitec.nhplus.model.Treatment;
 import javafx.util.StringConverter;
 
 import java.sql.SQLException;
@@ -55,9 +54,7 @@ public class CompletionPatientController {
     private AllPatientController controller;
     private Patient patient;
     private Stage stage;
-    private Treatment treatment;
-
-    private final ObservableList<Treatment> treatments = FXCollections.observableArrayList();
+    
     private final ObservableList<Patient> patients = FXCollections.observableArrayList();
 
     public void initializeController(AllPatientController controller, Stage stage, Patient patient) {
@@ -96,10 +93,9 @@ public class CompletionPatientController {
 
     @FXML
     public void handleConfirm() {
+        if((CheckBoxLeave.isSelected() || CheckBoxDead.isSelected())) this.patient.setStatus(true);
 
-        if((CheckBoxLeave.isSelected() || CheckBoxDead.isSelected())) this.treatment.setStatus(true);
-
-        this.treatment.setDateOfDelete(this.dateOfDelete.getValue()); ;
+        this.patient.setDateOfDelete(this.dateOfDelete.getValue());
 
         areInputDataInvalid();
         archivePatient(this.patient);
