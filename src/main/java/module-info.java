@@ -10,6 +10,7 @@ module de.hitec.nhplus {
     requires bcrypt;
 
     requires com.fasterxml.jackson.databind;
+    requires java.desktop;
 
     opens de.hitec.nhplus to javafx.fxml;
     opens de.hitec.nhplus.controller to javafx.fxml;
