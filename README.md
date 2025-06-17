@@ -24,7 +24,10 @@
 ![img_6.png](img_6.png)
 #### hinzufügen der Pflegertabelle und Testdaten
 ![img_7.png](img_7.png)
-
-
-### Merge Konflikte
 #### Treatement Archive
+View ist fertig
+
+
+### Nicht fertig
+#### Treatement Archive
+Es archiviert Daten nicht automatisch
