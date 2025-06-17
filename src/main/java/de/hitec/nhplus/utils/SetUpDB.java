@@ -54,6 +54,11 @@ public class SetUpDB {
         }
     }
 
+    /**
+     * Creates the {@code patient} table if it does not already exist.
+     *
+     * @param connection an active {@link Connection} to the SQLite database
+     */
     private static void setUpTablePatient(Connection connection) {
         final String SQL = "CREATE TABLE IF NOT EXISTS patient (" +
                 "   pid INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -70,6 +75,11 @@ public class SetUpDB {
         }
     }
 
+    /**
+     * Creates the {@code nurse} table if it does not already exist.
+     *
+     * @param connection an active {@link Connection} to the SQLite database
+     */
     private static void setUpTableNurse(Connection connection) {
         final String SQL = "CREATE TABLE IF NOT EXISTS nurse (" +
                 "   id INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -85,6 +95,11 @@ public class SetUpDB {
         }
     }
 
+    /**
+     * Creates the {@code admin} table if it does not already exist.
+     *
+     * @param connection an active {@link Connection} to the SQLite database
+     */
     private static void setUpTableAdmin(Connection connection) {
         final String SQL = "CREATE TABLE IF NOT EXISTS admin (" +
                 "   id INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -99,6 +114,12 @@ public class SetUpDB {
         }
     }
 
+
+    /**
+     * Creates the {@code treatment} table if it does not already exist.
+     *
+     * @param connection an active {@link Connection} to the SQLite database
+     */
     private static void setUpTableTreatment(Connection connection) {
         final String SQL = "CREATE TABLE IF NOT EXISTS treatment (" +
                 "   tid INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -118,7 +139,12 @@ public class SetUpDB {
         }
     }
 
-
+    /**
+     * Inserts a predefined set of patients into the database.
+     * <p>
+     * Each patient is created using the {@link PatientDao}.
+     * </p>
+     */
     private static void setUpPatients() {
         try {
             PatientDao dao = DaoFactory.getDaoFactory().createPatientDAO();
@@ -133,6 +159,12 @@ public class SetUpDB {
         }
     }
 
+    /**
+     * Inserts a test set of nurses into the database.
+     * <p>
+     * Passwords are hashed using BCrypt before being stored.
+     * </p>
+     */
     private static void setUpNurses() {
         try {
             NurseDao dao = DaoFactory.getDaoFactory().createNurseDao();
@@ -146,6 +178,13 @@ public class SetUpDB {
         }
     }
 
+
+    /**
+     * Inserts a test admin user into the database.
+     * <p>
+     * Password is hashed using BCrypt before being stored.
+     * </p>
+     */
     private static void setUpAdmins() {
         try {
             AdminDao dao = DaoFactory.getDaoFactory().createAdminDao();
@@ -157,6 +196,9 @@ public class SetUpDB {
         }
     }
 
+    /**
+     * Inserts Test Treatments
+     */
     private static void setUpTreatments() {
         try {
             TreatmentDao dao = DaoFactory.getDaoFactory().createTreatmentDao();

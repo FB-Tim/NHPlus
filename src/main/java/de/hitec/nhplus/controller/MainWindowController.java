@@ -10,6 +10,11 @@ import javafx.scene.layout.BorderPane;
 
 import java.io.IOException;
 
+
+/**
+ * Controller class for the main application window.
+ * Handles navigation between different views and manages UI elements based on user roles.
+ */
 public class MainWindowController {
 
     @FXML
@@ -19,6 +24,10 @@ public class MainWindowController {
     private Button btnAdmins;
 
 
+    /**
+     * Initializes the main window view.
+     * Shows or hides the Admin button depending on whether the current user is an admin.
+     */
     @FXML
     private void initialize() {
         if (SessionManager.getCurrentUser().isAdmin()) {
@@ -33,6 +42,11 @@ public class MainWindowController {
         }
     }
 
+    /**
+     * Loads the AllPatientView into the center of the main window.
+     *
+     * @param event the action event triggered by clicking the corresponding button
+     */
     @FXML
     private void handleShowAllPatient(ActionEvent event) {
         FXMLLoader loader = new FXMLLoader(Main.class.getResource("/de/hitec/nhplus/AllPatientView.fxml"));
@@ -43,6 +57,11 @@ public class MainWindowController {
         }
     }
 
+    /**
+     * Loads the AllTreatmentView into the center of the main window.
+     *
+     * @param event the action event triggered by clicking the corresponding button
+     */
     @FXML
     private void handleShowAllTreatments(ActionEvent event) {
         FXMLLoader loader = new FXMLLoader(Main.class.getResource("/de/hitec/nhplus/AllTreatmentView.fxml"));
@@ -53,6 +72,11 @@ public class MainWindowController {
         }
     }
 
+    /**
+     * Loads the AllCaregiverView (nurses) into the center of the main window.
+     *
+     * @param event the action event triggered by clicking the corresponding button
+     */
     @FXML
     private void handleShowAllNurses(ActionEvent event) {
         FXMLLoader loader = new FXMLLoader(Main.class.getResource("/de/hitec/nhplus/AllCaregiverView.fxml"));
@@ -63,7 +87,12 @@ public class MainWindowController {
         }
     }
 
-
+    /**
+     * Loads the AllAdminsView into the center of the main window.
+     * Only accessible to admin users.
+     *
+     * @param event the action event triggered by clicking the corresponding button
+     */
     @FXML
     private void handleShowAllAdmins(ActionEvent event) {
         FXMLLoader loader = new FXMLLoader(Main.class.getResource("/de/hitec/nhplus/AllAdminsView.fxml"));
@@ -74,7 +103,13 @@ public class MainWindowController {
         }
     }
 
-
+    /**
+     * Handles the logout process:
+     * Clears the user session, switches back to the login screen,
+     * and resizes the stage accordingly.
+     *
+     * @param event the action event triggered by clicking the logout button
+     */
     @FXML
     private void handleLogout(ActionEvent event) {
         try {
