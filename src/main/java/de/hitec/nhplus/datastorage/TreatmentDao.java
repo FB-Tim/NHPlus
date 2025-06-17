@@ -207,6 +207,15 @@ public class TreatmentDao extends DaoImp<Treatment> {
         return preparedStatement;
     }
 
+    /**
+     * Creates a {@link PreparedStatement} to export a treatment record by treatment ID.
+     * <p>
+     * Prepares an SQL query to select all columns from the "treatment" table
+     * for the specified treatment ID.
+     *
+     * @param tid the treatment ID used to identify the treatment record to export.
+     * @return a {@link PreparedStatement} configured to fetch the treatment record by ID.
+     */
     @Override
     protected PreparedStatement getExportStatement(long tid) {
         PreparedStatement preparedStatement = null;

@@ -18,10 +18,10 @@ public class AdminDao extends DaoImp<Admin> {
     public AdminDao(Connection connection) { super(connection); }
 
     /**
-     * Generates a <code>PreparedStatement</code> to persist the given object of <code>Admin</code>.
+     * Creates a {@link PreparedStatement} for inserting a new {@link Admin} into the database.
      *
-     * @param Admin Object of <code>Admin</code> to persist.
-     * @return <code>PreparedStatement</code> to insert the given Admin.
+     * @param admin The {@link Admin} object to persist.
+     * @return A {@link PreparedStatement} for the insert operation.
      */
     @Override
     protected PreparedStatement getCreateStatement(Admin admin) {
@@ -39,10 +39,10 @@ public class AdminDao extends DaoImp<Admin> {
     }
 
     /**
-     * Generates a <code>PreparedStatement</code> to query a Admin by a given Admin id (nid).
+     * Creates a {@link PreparedStatement} to retrieve an {@link Admin} by its ID.
      *
-     * @param nid Admin id to query.
-     * @return <code>PreparedStatement</code> to query the Admin.
+     * @param nid The ID of the admin to retrieve.
+     * @return A {@link PreparedStatement} for the select operation.
      */
     @Override
     protected PreparedStatement getReadByIDStatement(long nid) {
@@ -58,10 +58,11 @@ public class AdminDao extends DaoImp<Admin> {
     }
 
     /**
-     * Maps a <code>ResultSet</code> of one Admin to an object of <code>Admin</code>.
+     * Maps a single row of a {@link ResultSet} to an {@link Admin} object.
      *
-     * @param result ResultSet with a single row. Columns will be mapped to an object of class <code>Admin</code>.
-     * @return Object of class <code>Admin</code> with the data from the resultSet.
+     * @param result The {@link ResultSet} positioned at a single row.
+     * @return An {@link Admin} object populated with data from the result set.
+     * @throws SQLException if an error occurs while reading from the result set.
      */
     @Override
     protected Admin getInstanceFromResultSet(ResultSet result) throws SQLException {
@@ -73,9 +74,9 @@ public class AdminDao extends DaoImp<Admin> {
     }
 
     /**
-     * Generates a <code>PreparedStatement</code> to query all Admins.
+     * Creates a {@link PreparedStatement} to retrieve all admins from the database.
      *
-     * @return <code>PreparedStatement</code> to query all Admins.
+     * @return A {@link PreparedStatement} for retrieving all admin records.
      */
     @Override
     protected PreparedStatement getReadAllStatement() {
@@ -91,11 +92,11 @@ public class AdminDao extends DaoImp<Admin> {
 
 
     /**
-     * Maps a <code>ResultSet</code> of all Admins to an <code>ArrayList</code> of <code>Admin</code> objects.
+     * Maps a {@link ResultSet} containing multiple rows to a list of {@link Admin} objects.
      *
-     * @param result ResultSet with all rows. The Columns will be mapped to objects of class <code>Admin</code>.
-     * @return <code>ArrayList</code> with objects of class <code>Admin</code> of all rows in the
-     * <code>ResultSet</code>.
+     * @param result The {@link ResultSet} with multiple rows.
+     * @return An {@link ArrayList} of {@link Admin} objects.
+     * @throws SQLException if an error occurs while reading from the result set.
      */
     @Override
     protected ArrayList<Admin> getListFromResultSet(ResultSet result) throws SQLException {
@@ -107,6 +108,12 @@ public class AdminDao extends DaoImp<Admin> {
         return list;
     }
 
+    /**
+     * Finds an {@link Admin} by their first name.
+     *
+     * @param firstName The first name of the admin.
+     * @return The matching {@link Admin}, or null if none found.
+     */
     public Admin findByFirstName(String firstName) {
         Admin admin = null;
         try {
@@ -125,11 +132,10 @@ public class AdminDao extends DaoImp<Admin> {
 
 
     /**
-     * Generates a <code>PreparedStatement</code> to update the given Admin, identified
-     * by the id of the Admin (nid).
+     * Creates a {@link PreparedStatement} to update an existing {@link Admin} in the database.
      *
-     * @param Admin admin object to update.
-     * @return <code>PreparedStatement</code> to update the given Admin.
+     * @param admin The {@link Admin} object with updated values.
+     * @return A {@link PreparedStatement} for the update operation.
      */
     @Override
     protected PreparedStatement getUpdateStatement(Admin admin) {
@@ -152,10 +158,10 @@ public class AdminDao extends DaoImp<Admin> {
     }
 
     /**
-     * Generates a <code>PreparedStatement</code> to delete a Admin with the given id.
+     * Creates a {@link PreparedStatement} to delete an {@link Admin} by their ID.
      *
-     * @param nid Id of the Admin to delete.
-     * @return <code>PreparedStatement</code> to delete Admin with the given id.
+     * @param nid The ID of the admin to delete.
+     * @return A {@link PreparedStatement} for the delete operation.
      */
     @Override
     protected PreparedStatement getDeleteStatement(long nid) {
@@ -170,6 +176,12 @@ public class AdminDao extends DaoImp<Admin> {
         return preparedStatement;
     }
 
+    /**
+     * Not implemented: This DAO does not support exporting by key.
+     *
+     * @param key The key used for export.
+     * @return Always returns null.
+     */
     @Override
     protected PreparedStatement getExportStatement(long key) {
         return null;

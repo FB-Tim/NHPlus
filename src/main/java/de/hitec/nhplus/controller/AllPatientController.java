@@ -259,6 +259,11 @@ public class AllPatientController {
         this.textFieldRoomNumber.clear();
     }
 
+    /**
+     * Checks if all input fields for creating a patient are filled out and valid.
+     *
+     * @return {@code true} if all required input fields are valid; {@code false} otherwise.
+     */
     private boolean areInputDataValid() {
         if (!this.textFieldDateOfBirth.getText().isBlank()) {
             try {
@@ -273,6 +278,10 @@ public class AllPatientController {
                 !this.textFieldRoomNumber.getText().isBlank();
     }
 
+    /**
+     * Exports the selected patient as a JSON file using the Jackson library.
+     * Shows a FileChooser dialog to select the export location.
+     */
     @FXML
     public void handelExport() {
         Patient selectedTreatment = tableView.getSelectionModel().getSelectedItem();

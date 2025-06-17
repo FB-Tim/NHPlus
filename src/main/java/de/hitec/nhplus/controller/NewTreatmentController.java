@@ -15,6 +15,10 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
+/**
+ * Controller class for creating a new treatment entry for a specific patient.
+ * Handles form inputs, data validation, and saving the treatment to the database.
+ */
 public class NewTreatmentController {
 
     @FXML
@@ -45,6 +49,13 @@ public class NewTreatmentController {
     private Patient patient;
     private Stage stage;
 
+    /**
+     * Initializes the controller with necessary references and sets up listeners and UI components.
+     *
+     * @param controller the main treatment controller for data refresh
+     * @param stage      the current window/stage
+     * @param patient    the patient for whom the treatment is being created
+     */
     public void initialize(AllTreatmentController controller, Stage stage, Patient patient) {
         this.controller= controller;
         this.patient = patient;
@@ -72,11 +83,19 @@ public class NewTreatmentController {
         this.showPatientData();
     }
 
+
+    /**
+     * Displays the current patient's first name and surname on the form.
+     */
     private void showPatientData(){
         this.labelFirstName.setText(patient.getFirstName());
         this.labelSurname.setText(patient.getSurname());
     }
 
+    /**
+     * Handles the event when the "Add" button is pressed.
+     * Collects form data, creates a treatment object, stores it, and refreshes the view.
+     */
     @FXML
     public void handleAdd(){
         LocalDate date = this.datePicker.getValue();
@@ -90,6 +109,11 @@ public class NewTreatmentController {
         stage.close();
     }
 
+    /**
+     * Saves a new treatment to the database using the DAO.
+     *
+     * @param treatment the treatment object to be persisted
+     */
     private void createTreatment(Treatment treatment) {
         TreatmentDao dao = DaoFactory.getDaoFactory().createTreatmentDao();
         try {
@@ -99,11 +123,23 @@ public class NewTreatmentController {
         }
     }
 
+    /**
+     * Handles the event when the "Cancel" button is pressed.
+     * Closes the current window without saving.
+     */
     @FXML
     public void handleCancel(){
         stage.close();
     }
 
+    /**
+     * Validates all input fields to ensure correctness.
+     * - Ensures times are in correct format and chronological
+     * - Description is not blank
+     * - Date is selected
+     *
+     * @return {@code true} if any input is invalid, {@code false} otherwise
+     */
     private boolean areInputDataInvalid() {
         if (this.textFieldBegin.getText() == null || this.textFieldEnd.getText() == null) {
             return true;

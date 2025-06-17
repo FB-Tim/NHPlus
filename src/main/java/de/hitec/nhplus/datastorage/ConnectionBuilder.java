@@ -8,6 +8,10 @@ import java.sql.Statement;
 import io.github.cdimascio.dotenv.Dotenv;
 import org.sqlite.SQLiteConfig;
 
+/**
+ * Utility class to manage the creation and closure of a singleton SQLite database connection,
+ * including encryption support using SQLCipher.
+ */
 public class ConnectionBuilder {
 
     private static final String DB_NAME = "nursingHome.db";
@@ -20,6 +24,13 @@ public class ConnectionBuilder {
 
     private static Connection connection;
 
+
+    /**
+     * Returns the singleton {@link Connection} to the SQLite database. Initializes the connection
+     * if it does not already exist. Also configures foreign key constraints and sets the encryption key.
+     *
+     * @return The SQLite {@link Connection}, or {@code null} if an error occurs.
+     */
     synchronized public static Connection getConnection() {
         try {
             if (ConnectionBuilder.connection == null) {
@@ -37,6 +48,9 @@ public class ConnectionBuilder {
         return ConnectionBuilder.connection;
     }
 
+    /**
+     * Closes the current SQLite {@link Connection} if it exists and resets it to {@code null}.
+     */
     synchronized public static void closeConnection() {
         try {
             if (ConnectionBuilder.connection != null) {

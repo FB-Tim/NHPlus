@@ -13,6 +13,11 @@ import de.hitec.nhplus.utils.DateConverter;
 import java.sql.SQLException;
 import java.time.LocalDate;
 
+
+/**
+ * Controller class for editing an existing {@link Treatment} entry.
+ * Provides functionality to display treatment details, update them, and persist changes.
+ */
 public class TreatmentController {
 
     @FXML
@@ -41,6 +46,13 @@ public class TreatmentController {
     private Patient patient;
     private Treatment treatment;
 
+    /**
+     * Initializes the controller with necessary references and populates UI with treatment and patient data.
+     *
+     * @param controller Reference to the main treatment controller
+     * @param stage      The current window stage
+     * @param treatment  The treatment record to be modified
+     */
     public void initializeController(AllTreatmentController controller, Stage stage, Treatment treatment) {
         this.stage = stage;
         this.controller= controller;
@@ -54,6 +66,10 @@ public class TreatmentController {
         }
     }
 
+
+    /**
+     * Displays patient information and treatment details in the corresponding UI fields.
+     */
     private void showData(){
         this.labelPatientName.setText(patient.getSurname()+", "+patient.getFirstName());
         this.labelCareLevel.setText(patient.getCareLevel());
@@ -65,6 +81,10 @@ public class TreatmentController {
         this.textAreaRemarks.setText(this.treatment.getRemarks());
     }
 
+    /**
+     * Event handler for the "Change" button.
+     * Updates the treatment object with form data and saves the changes to the database.
+     */
     @FXML
     public void handleChange(){
         this.treatment.setDate(this.datePicker.getValue().toString());
@@ -77,6 +97,10 @@ public class TreatmentController {
         stage.close();
     }
 
+
+    /**
+     * Updates the treatment in the database.
+     */
     private void doUpdate(){
         TreatmentDao dao = DaoFactory.getDaoFactory().createTreatmentDao();
         try {
@@ -86,6 +110,10 @@ public class TreatmentController {
         }
     }
 
+    /**
+     * Event handler for the "Cancel" button.
+     * Closes the edit window without saving changes.
+     */
     @FXML
     public void handleCancel(){
         stage.close();

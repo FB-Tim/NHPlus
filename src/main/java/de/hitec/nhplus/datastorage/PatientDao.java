@@ -170,6 +170,15 @@ public class PatientDao extends DaoImp<Patient> {
         return preparedStatement;
     }
 
+    /**
+     * Creates a {@link PreparedStatement} for exporting a patient record by patient ID.
+     * <p>
+     * This method prepares an SQL query to select all columns from the "patient" table
+     * for the specified patient ID.
+     *
+     * @param pid the patient ID used to identify the patient record to export.
+     * @return a {@link PreparedStatement} configured to fetch the patient record by ID.
+     */
     @Override
     protected PreparedStatement getExportStatement(long pid) {
         PreparedStatement preparedStatement = null;

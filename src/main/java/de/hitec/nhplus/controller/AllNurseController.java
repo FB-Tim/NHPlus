@@ -22,6 +22,23 @@ import java.sql.SQLException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Controller class for the "All Nurses" management view in the JavaFX application.
+ * This class provides the UI logic to display, add, edit, and delete {@link Nurse} entries.
+ * It connects UI elements like the {@link TableView} and {@link TextField}s with
+ * business logic and persistence via the {@link NurseDao}.
+ *
+ * It also handles user permissions through {@link SessionManager} to show/hide
+ * functionality based on the current user's role (e.g., Admin).
+ *
+ * Functionality includes:
+ * - Displaying nurse records in a table
+ * - Inline editing of first name, surname, and telephone
+ * - Validation of input data
+ * - Creating and deleting nurse records
+ * - Dynamic enabling/disabling of buttons based on UI state
+ */
+
 public class AllNurseController {
 
     @FXML
@@ -63,9 +80,9 @@ public class AllNurseController {
     private NurseDao dao;
 
     /**
-     * When <code>initialize()</code> gets called, all fields are already initialized. For example from the FXMLLoader
-     * after loading an FXML-File. At this point of the lifecycle of the Controller, the fields can be accessed and
-     * configured.
+     * Initializes the controller after FXML loading.
+     * Sets up column mappings, loads data, attaches listeners,
+     * and applies UI rules based on user permissions.
      */
     public void initialize() {
         setupTableColumns();
@@ -75,6 +92,10 @@ public class AllNurseController {
         applyUserPermissions();
     }
 
+    /**
+     * Configures the column-to-property bindings and enables in-table editing
+     * for first name, surname, and telephone fields.
+     */
     private void setupTableColumns() {
         colID.setCellValueFactory(new PropertyValueFactory<>("nid"));
 
@@ -88,11 +109,18 @@ public class AllNurseController {
         colTelephone.setCellFactory(TextFieldTableCell.forTableColumn());
     }
 
+    /**
+     * Loads nurse data from the database and binds it to the TableView.
+     */
     private void loadAndShowData() {
         readAllAndShowInTableView();
         tableView.setItems(nurses);
     }
 
+    /**
+     * Adds a listener to the TableView selection model to enable or disable
+     * the delete button based on whether a nurse is selected.
+     */
     private void setupSelectionListener() {
         btnDelete.setDisable(true);
         tableView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
@@ -100,6 +128,10 @@ public class AllNurseController {
         });
     }
 
+    /**
+     * Adds listeners to input fields to dynamically enable or disable the add button
+     * based on whether the inputs are valid.
+     */
     private void setupInputValidationListener() {
         btnAdd.setDisable(true);
         ChangeListener<String> inputListener = (obs, oldVal, newVal) -> {
@@ -110,6 +142,11 @@ public class AllNurseController {
         txfTelephone.textProperty().addListener(inputListener);
     }
 
+    /**
+     * Applies visibility and accessibility settings for UI elements based
+     * on the currently logged-in user's permissions.
+     * Admin users can modify data, others cannot.
+     */
     private void applyUserPermissions() {
         boolean isAdmin = SessionManager.getCurrentUser() != null && SessionManager.getCurrentUser().isAdmin();
 
@@ -141,9 +178,10 @@ public class AllNurseController {
     }
 
     /**
-     * When a cell of the column with first names was changed, this method will be called, to persist the change.
+     * Handles inline editing of the nurse's first name in the TableView.
+     * Updates the underlying model and persists the change.
      *
-     * @param event Event including the changed object and the change.
+     * @param event the edit event containing the new value
      */
     @FXML
     public void handleOnEditFirstname(TableColumn.CellEditEvent<Nurse, String> event) {
@@ -152,9 +190,10 @@ public class AllNurseController {
     }
 
     /**
-     * When a cell of the column with surnames was changed, this method will be called, to persist the change.
+     * Handles inline editing of the nurse's surname in the TableView.
+     * Updates the underlying model and persists the change.
      *
-     * @param event Event including the changed object and the change.
+     * @param event the edit event containing the new value
      */
     @FXML
     public void handleOnEditSurname(TableColumn.CellEditEvent<Nurse, String> event) {
@@ -163,9 +202,10 @@ public class AllNurseController {
     }
 
     /**
-     * When a cell of the column with dates of birth was changed, this method will be called, to persist the change.
+     * Handles inline editing of the nurse's telephone number in the TableView.
+     * Updates the underlying model and persists the change.
      *
-     * @param event Event including the changed object and the change.
+     * @param event the edit event containing the new value
      */
     @FXML
     public void handleOnEditTelephone(TableColumn.CellEditEvent<Nurse, String> event) {
@@ -174,9 +214,10 @@ public class AllNurseController {
     }
 
     /**
-     * Updates a nurse by calling the method <code>update()</code> of {@link NurseDao}
+     * Persists changes made to a nurse object after a cell edit event.
+     * Uses the {@link NurseDao#update(Nurse)} method.
      *
-     * @param event Event including the changed object and the change.
+     * @param event the edit event containing the modified Nurse object
      */
     private void doUpdate(TableColumn.CellEditEvent<Nurse, String> event) {
         try {
@@ -187,8 +228,8 @@ public class AllNurseController {
     }
 
     /**
-     * Reloads all nurses to the table by clearing the list of all nurses and filling it again by all persisted
-     * nurses, delivered by {@link NurseDao}.
+     * Reloads all nurse entries from the database using {@link NurseDao#readAll()},
+     * clears the current list, and populates the TableView.
      */
     private void readAllAndShowInTableView() {
         this.nurses.clear();
@@ -201,9 +242,8 @@ public class AllNurseController {
     }
 
     /**
-     * This method handles events fired by the button to delete nurses. It calls {@link NurseDao} to delete the
-     * nurse from the database and removes the object from the list, which is the data source of the
-     * <code>TableView</code>.
+     * Deletes the currently selected nurse from both the TableView and the database.
+     * Uses {@link NurseDao#deleteById(int)} for removal.
      */
     @FXML
     public void handleDelete() {
@@ -219,9 +259,9 @@ public class AllNurseController {
     }
 
     /**
-     * This method handles the events fired by the button to add a nurse. It collects the data from the
-     * <code>TextField</code>s, creates an object of class <code>Nurse</code> of it and passes the object to
-     * {@link NurseDao} to persist the data.
+     * Adds a new nurse entry to the database and refreshes the TableView.
+     * Collects values from input fields, hashes the password using BCrypt,
+     * and creates a new {@link Nurse} object.
      */
     @FXML
     public void handleAdd() {
@@ -240,7 +280,7 @@ public class AllNurseController {
     }
 
     /**
-     * Clears all contents from all <code>TextField</code>s.
+     * Clears all input fields in the form (first name, surname, telephone).
      */
     private void clearTextfields() {
         this.txfFirstname.clear();
@@ -248,6 +288,12 @@ public class AllNurseController {
         this.txfTelephone.clear();
     }
 
+    /**
+     * Validates user input before allowing a new nurse to be added.
+     * Ensures that no fields are blank and checks the format of the telephone number.
+     *
+     * @return true if all input fields are valid, false otherwise
+     */
     private boolean areInputDataValid() {
         if (!this.txfTelephone.getText().isBlank()) {
             // TODO: Find better Regex

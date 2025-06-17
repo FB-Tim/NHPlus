@@ -54,18 +54,40 @@ public class Patient extends Person {
         this.roomNumber = new SimpleStringProperty(roomNumber);
     }
 
+    /**
+     * Returns the patient ID.
+     *
+     * @return the patient's unique identifier
+     */
     public long getPid() {
         return pid.get();
     }
 
+    /**
+     * Returns the patient ID property.
+     *
+     * @return the SimpleLongProperty representing the patient ID
+     */
     public SimpleLongProperty pidProperty() {
         return pid;
     }
 
+
+    /**
+     * Returns the patient's date of birth as a string.
+     *
+     * @return date of birth in string format (YYYY-MM-DD)
+     */
     public String getDateOfBirth() {
         return dateOfBirth.get();
     }
 
+
+    /**
+     * Returns the date of birth property.
+     *
+     * @return the SimpleStringProperty representing the date of birth
+     */
     public SimpleStringProperty dateOfBirthProperty() {
         return dateOfBirth;
     }
@@ -79,31 +101,66 @@ public class Patient extends Person {
         this.dateOfBirth.set(dateOfBirth);
     }
 
+    /**
+     * Returns the care level of the patient.
+     *
+     * @return the care level string
+     */
     public String getCareLevel() {
         return careLevel.get();
     }
 
+    /**
+     * Returns the care level property.
+     *
+     * @return the SimpleStringProperty representing the care level
+     */
     public SimpleStringProperty careLevelProperty() {
         return careLevel;
     }
 
+    /**
+     * Sets the care level of the patient.
+     *
+     * @param careLevel the care level to set
+     */
     public void setCareLevel(String careLevel) {
         this.careLevel.set(careLevel);
     }
 
+    /**
+     * Returns the room number of the patient.
+     *
+     * @return the room number string
+     */
     public String getRoomNumber() {
         return roomNumber.get();
     }
 
+    /**
+     * Returns the room number property.
+     *
+     * @return the SimpleStringProperty representing the room number
+     */
     public SimpleStringProperty roomNumberProperty() {
         return roomNumber;
     }
 
-
+    /**
+     * Sets the room number of the patient.
+     *
+     * @param roomNumber the room number to set
+     */
     public void setRoomNumber(String roomNumber) {
         this.roomNumber.set(roomNumber);
     }
 
+    /**
+     * Checks whether this person is an admin.
+     * For patients, this is delegated to the superclass implementation.
+     *
+     * @return {@code true} if this person is an admin, {@code false} otherwise
+     */
     @Override
     public boolean isAdmin() {
         return super.isAdmin();
@@ -123,6 +180,12 @@ public class Patient extends Person {
         return true;
     }
 
+    /**
+     * Returns a string representation of the patient,
+     * including patient ID, first name, surname, date of birth, care level, and room number.
+     *
+     * @return formatted string representing this patient
+     */
     public String toString() {
         return "Patient" + "\nMNID: " + this.pid +
                 "\nFirstname: " + this.getFirstName() +

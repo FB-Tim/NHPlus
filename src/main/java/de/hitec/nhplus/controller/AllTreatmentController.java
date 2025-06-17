@@ -24,7 +24,10 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-
+/**
+ * Controller class for managing and displaying all treatments in a table view.
+ * Allows filtering by patient, adding new treatments, deleting existing ones, and exporting treatment data to JSON.
+ */
 public class AllTreatmentController {
 
     @FXML
@@ -62,6 +65,10 @@ public class AllTreatmentController {
     private final ObservableList<String> patientSelection = FXCollections.observableArrayList();
     private ArrayList<Patient> patientList;
 
+    /**
+     * Initializes the controller and its components after the FXML has been loaded.
+     * Sets up table columns, combo box data, event listeners and displays all treatments.
+     */
     public void initialize() {
         readAllAndShowInTableView();
         comboBoxPatientSelection.setItems(patientSelection);
@@ -89,6 +96,10 @@ public class AllTreatmentController {
         this.createComboBoxData();
     }
 
+    /**
+     * Reads all treatments from the database and shows them in the table view.
+     * Also resets the combo box selection to "alle".
+     */
     public void readAllAndShowInTableView() {
         this.treatments.clear();
         comboBoxPatientSelection.getSelectionModel().select(0);
@@ -100,6 +111,10 @@ public class AllTreatmentController {
         }
     }
 
+
+    /**
+     * Populates the combo box with the surnames of all patients and a default "alle" entry.
+     */
     private void createComboBoxData() {
         PatientDao dao = DaoFactory.getDaoFactory().createPatientDAO();
         try {
@@ -114,6 +129,9 @@ public class AllTreatmentController {
     }
 
 
+    /**
+     * Handles selection changes in the combo box and filters treatments based on selected patient.
+     */
     @FXML
     public void handleComboBox() {
         String selectedPatient = this.comboBoxPatientSelection.getSelectionModel().getSelectedItem();
@@ -138,6 +156,12 @@ public class AllTreatmentController {
         }
     }
 
+    /**
+     * Searches for a patient in the internal list by surname.
+     *
+     * @param surname the surname of the patient
+     * @return the matching {@link Patient} object or null if not found
+     */
     private Patient searchInList(String surname) {
         for (Patient patient : this.patientList) {
             if (patient.getSurname().equals(surname)) {
@@ -147,6 +171,9 @@ public class AllTreatmentController {
         return null;
     }
 
+    /**
+     * Deletes the currently selected treatment from both the table view and the database.
+     */
     @FXML
     public void handleDelete() {
         int index = this.tableView.getSelectionModel().getSelectedIndex();
@@ -159,6 +186,11 @@ public class AllTreatmentController {
         }
     }
 
+
+    /**
+     * Opens a dialog to create a new treatment for the selected patient in the combo box.
+     * If no patient is selected, an alert is shown.
+     */
     @FXML
     public void handleNewTreatment() {
         try{
@@ -173,6 +205,12 @@ public class AllTreatmentController {
             alert.showAndWait();
         }
     }
+
+
+    /**
+     * Exports the selected treatment to a JSON file using Jackson.
+     * Opens a file chooser dialog for the user to select a destination.
+     */
     @FXML
     public void handelExport() {
         Treatment selectedTreatment = tableView.getSelectionModel().getSelectedItem();
@@ -198,7 +236,9 @@ public class AllTreatmentController {
         }
     }
 
-
+    /**
+     * Handles double-clicks on a treatment entry in the table to open the treatment detail view.
+     */
     @FXML
     public void handleMouseClick() {
         tableView.setOnMouseClicked(event -> {
@@ -210,6 +250,11 @@ public class AllTreatmentController {
         });
     }
 
+    /**
+     * Opens a modal window to add a new treatment for the given patient.
+     *
+     * @param patient the patient for whom the treatment will be created
+     */
     public void newTreatmentWindow(Patient patient) {
         try {
             FXMLLoader loader = new FXMLLoader(Main.class.getResource("/de/hitec/nhplus/NewTreatmentView.fxml"));
@@ -230,6 +275,12 @@ public class AllTreatmentController {
         }
     }
 
+
+    /**
+     * Opens a modal window to view or edit the details of the selected treatment.
+     *
+     * @param treatment the treatment to view or edit
+     */
     public void treatmentWindow(Treatment treatment){
         try {
             FXMLLoader loader = new FXMLLoader(Main.class.getResource("/de/hitec/nhplus/TreatmentView.fxml"));

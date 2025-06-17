@@ -109,6 +109,13 @@ public class NurseDao extends DaoImp<Nurse> {
         return list;
     }
 
+
+    /**
+     * Finds a nurse by their first name.
+     *
+     * @param firstName the first name of the nurse to find.
+     * @return the <code>Nurse</code> object if found; otherwise <code>null</code>.
+     */
     public Nurse findByFirstName(String firstName) {
         Nurse nurse = null;
         try {
@@ -173,6 +180,14 @@ public class NurseDao extends DaoImp<Nurse> {
         return preparedStatement;
     }
 
+    /**
+     * Creates a <code>PreparedStatement</code> for exporting a nurse by their ID.
+     * <p>
+     * This method may be used for custom export operations defined in subclasses.
+     *
+     * @param nid the ID of the nurse to export.
+     * @return the <code>PreparedStatement</code> configured to export the nurse.
+     */
     @Override
     protected PreparedStatement getExportStatement(long nid) {
         PreparedStatement preparedStatement = null;
