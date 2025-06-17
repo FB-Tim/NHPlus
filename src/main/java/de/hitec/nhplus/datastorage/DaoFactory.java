@@ -32,4 +32,6 @@ public class DaoFactory {
     }
 
     public NurseDao createNurseDao() { return new NurseDao(ConnectionBuilder.getConnection()); }
+
+    public AdminDao createAdminDao() {return new AdminDao(ConnectionBuilder.getConnection());}
 }

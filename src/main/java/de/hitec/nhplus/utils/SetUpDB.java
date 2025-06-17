@@ -1,6 +1,8 @@
 package de.hitec.nhplus.utils;
 
+import at.favre.lib.crypto.bcrypt.BCrypt;
 import de.hitec.nhplus.datastorage.*;
+import de.hitec.nhplus.model.Admin;
 import de.hitec.nhplus.model.Nurse;
 import de.hitec.nhplus.model.Patient;
 import de.hitec.nhplus.model.Treatment;
@@ -26,14 +28,17 @@ public class SetUpDB {
      */
     public static void setUpDb() {
         Connection connection = ConnectionBuilder.getConnection();
+
         SetUpDB.wipeDb(connection);
         SetUpDB.setUpTablePatient(connection);
         SetUpDB.setUpTableNurse(connection);
         SetUpDB.setUpTableArchive(connection);
         SetUpDB.setUpTableArchivePatient(connection);
         SetUpDB.setUpTableTreatment(connection);
+        SetUpDB.setUpTableAdmin(connection);
         SetUpDB.setUpPatients();
         SetUpDB.setUpNurses();
+        SetUpDB.setUpAdmins();
         SetUpDB.setUpArchive();
         SetUpDB.setUpArchivePatient();
         SetUpDB.setUpTreatments();
@@ -48,7 +53,9 @@ public class SetUpDB {
             statement.execute("DROP TABLE patient");
             statement.execute("DROP TABLE nurse");
             statement.execute("DROP TABLE treatment");
+            statement.execute("DROP TABLE admin");
             statement.execute("DROP TABLE archive");
+            statement.execute("DROP TABLE patient_archive");
         } catch (SQLException exception) {
             System.out.println(exception.getMessage());
         }
@@ -75,7 +82,22 @@ public class SetUpDB {
                 "   id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "   firstname TEXT NOT NULL, " +
                 "   surname TEXT NOT NULL, " +
-                "   phoneNumber TEXT NOT NULL" +
+                "   phoneNumber TEXT NOT NULL, " +
+                "   password TEXT NOT NULL" +
+                ");";
+        try (Statement statement = connection.createStatement()) {
+            statement.execute(SQL);
+        } catch (SQLException exception) {
+            System.out.println(exception.getMessage());
+        }
+    }
+
+    private static void setUpTableAdmin(Connection connection) {
+        final String SQL = "CREATE TABLE IF NOT EXISTS admin (" +
+                "   id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                "   firstname TEXT NOT NULL, " +
+                "   surname TEXT NOT NULL, " +
+                "   password TEXT NOT NULL" +
                 ");";
         try (Statement statement = connection.createStatement()) {
             statement.execute(SQL);
@@ -104,7 +126,7 @@ public class SetUpDB {
     }
 
     private static void setUpTableArchivePatient(Connection connection) {
-        final String SQL = "CREATE TABLE IF NOT EXISTS patient (" +
+        final String SQL = "CREATE TABLE IF NOT EXISTS patient_archive (" +
                 "   pid INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "   firstname TEXT NOT NULL, " +
                 "   surname TEXT NOT NULL, " +
@@ -201,10 +223,23 @@ public class SetUpDB {
     private static void setUpNurses() {
         try {
             NurseDao dao = DaoFactory.getDaoFactory().createNurseDao();
-            dao.create(new Nurse("Alice",  "Hansen", "017802365843"));
-            dao.create(new Nurse("Bob", "Baumeister", "016590754674"));
-            dao.create(new Nurse("Egon", "Kowalski", "015901857037"));
+            String plainPassword = "Nurse123";
+            String bcryptHashString = BCrypt.withDefaults().hashToString(12, plainPassword.toCharArray());
+            dao.create(new Nurse("Alice",  "Hansen", "017802365843", bcryptHashString));
+            dao.create(new Nurse("Bob", "Baumeister", "016590754674", bcryptHashString));
+            dao.create(new Nurse("Egon", "Kowalski", "015901857037", bcryptHashString));
         } catch (SQLException exception) {
+            exception.printStackTrace();
+        }
+    }
+
+    private static void setUpAdmins() {
+        try {
+            AdminDao dao = DaoFactory.getDaoFactory().createAdminDao();
+
+            String plainPassword = "Admin123";
+            String bcryptHashString = BCrypt.withDefaults().hashToString(12, plainPassword.toCharArray());
+            dao.create(new Admin("Admin", "Admin", bcryptHashString));        } catch (SQLException exception) {
             exception.printStackTrace();
         }
     }

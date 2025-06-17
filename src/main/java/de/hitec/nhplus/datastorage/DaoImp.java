@@ -40,6 +40,10 @@ import java.util.List;
     public void deleteById(long key) throws SQLException {
         getDeleteStatement(key).executeUpdate();
     }
+    @Override
+    public void exportById(long key) throws SQLException{
+        getExportStatement(key).executeUpdate();
+    }
 
     protected abstract T getInstanceFromResultSet(ResultSet set) throws SQLException;
 
@@ -54,4 +58,6 @@ import java.util.List;
     protected abstract PreparedStatement getUpdateStatement(T t);
 
     protected abstract PreparedStatement getDeleteStatement(long key);
+
+    protected abstract PreparedStatement getExportStatement(long key);
 }
