@@ -209,4 +209,18 @@ public class TreatmentDao extends DaoImp<Treatment> {
         }
         return preparedStatement;
     }
+
+    @Override
+    protected PreparedStatement getExportStatement(long tid) {
+        PreparedStatement preparedStatement = null;
+        try {
+            final String SQL =
+                    "Select * FROM treatment WHERE tid = ?";
+            preparedStatement = this.connection.prepareStatement(SQL);
+            preparedStatement.setLong(1, tid);
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+        }
+        return preparedStatement;
+    }
 }
